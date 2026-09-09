@@ -2,12 +2,12 @@ import React, { useMemo, useState } from 'react';
 import { useSubscriptions } from '../context/SubscriptionContext';
 import { useAuth } from '../context/AuthContext';
 import StatCard from '../components/common/StatCard';
+import SubscriptionIcon from '../components/common/SubscriptionIcon';
 import {
   PieChart as PieChartIcon,
   TrendingUp,
   CreditCard,
   AlertTriangle,
-  Download,
   Printer,
   Sparkles,
   Calendar,
@@ -20,9 +20,7 @@ import {
   Ban,
   RefreshCw,
   HelpCircle,
-  BarChart2,
-  Trash2,
-  Check
+  BarChart2
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -62,11 +60,10 @@ export default function AnalyticsPage() {
     nextBillDue,
     getMonthlyEquivalent,
     renewSubscription,
-    cancelSubscription,
-    tagUsageFrequency
+    cancelSubscription
   } = useSubscriptions();
 
-  const { formatAmount, currency } = useAuth();
+  const { user, formatAmount, currency } = useAuth();
   const [activeSegmentIndex, setActiveSegmentIndex] = useState(null);
 
   // =========================================================================
@@ -129,101 +126,10 @@ export default function AnalyticsPage() {
     return { forecastList: list, forecastBarData: barData };
   }, [subscriptions]);
 
-  // =========================================================================
-  // 4. THE "AUDIT" OR "WASTED SPEND" INTELLIGENCE
-  // =========================================================================
-  // A. Overlapping services detector
-  const overlappingInsights = useMemo(() => {
-    const overlaps = [];
-
-    // Music Overlap
-    const musicSubs = subscriptions.filter(s => s.status === 'active' && (s.category === 'Music & Audio' || s.name.toLowerCase().includes('spotify') || s.name.toLowerCase().includes('apple music') || s.name.toLowerCase().includes('yt music')));
-    if (musicSubs.length > 1) {
-      const secondaryCost = musicSubs.slice(1).reduce((sum, s) => sum + getMonthlyEquivalent(s), 0);
-      overlaps.push({
-        id: 'overlap-music',
-        category: 'Music & Audio',
-        title: 'Overlapping Music Streaming Platforms',
-        services: musicSubs.map(s => s.name),
-        explanation: `You are paying for multiple music streaming services (${musicSubs.map(s => s.name).join(' & ')}). Consolidating into one service could save you ${formatAmount(secondaryCost * 12)} per year.`,
-        potentialSavings: secondaryCost * 12
-      });
-    }
-
-    // Video Streaming Overlap (3+ video platforms)
-    const videoSubs = subscriptions.filter(s => s.status === 'active' && s.category === 'Entertainment' && !s.name.toLowerCase().includes('game') && !s.name.toLowerCase().includes('playstation'));
-    if (videoSubs.length >= 3) {
-      const estWasted = getMonthlyEquivalent(videoSubs[videoSubs.length - 1]);
-      overlaps.push({
-        id: 'overlap-video',
-        category: 'Entertainment',
-        title: 'High Video Streaming Redundancy',
-        services: videoSubs.map(s => s.name),
-        explanation: `You have ${videoSubs.length} video streaming services active simultaneously (${videoSubs.map(s => s.name).join(', ')}). Cycling through platforms can save approx. ${formatAmount(estWasted * 12)} annually.`,
-        potentialSavings: estWasted * 12
-      });
-    }
-
-    // Cloud Storage Overlap
-    const cloudSubs = subscriptions.filter(s => s.status === 'active' && (s.name.toLowerCase().includes('google one') || s.name.toLowerCase().includes('dropbox') || s.name.toLowerCase().includes('icloud') || s.name.toLowerCase().includes('onedrive')));
-    if (cloudSubs.length > 1) {
-      const lowerCloud = cloudSubs.slice(1).reduce((sum, s) => sum + getMonthlyEquivalent(s), 0);
-      overlaps.push({
-        id: 'overlap-cloud',
-        category: 'Cloud Storage',
-        title: 'Duplicate Cloud Storage Subscriptions',
-        services: cloudSubs.map(s => s.name),
-        explanation: `Multiple cloud backup subscriptions detected (${cloudSubs.map(s => s.name).join(' and ')}). Unifying under one provider could eliminate ${formatAmount(lowerCloud * 12)} in yearly fees.`,
-        potentialSavings: lowerCloud * 12
-      });
-    }
-
-    return overlaps;
-  }, [subscriptions, getMonthlyEquivalent, formatAmount]);
-
-  // B. Subscriptions tagged as "rarely used" or forgotten
-  const rarelyUsedSubscriptions = useMemo(() => {
-    return subscriptions.filter(s =>
-      s.status !== 'cancelled' && (s.usageFrequency === 'rarely' || s.usageFrequency === 'forgotten')
-    );
+  // Active Subscriptions for print report and overview
+  const activeSubscriptions = useMemo(() => {
+    return subscriptions.filter(s => s.status === 'active' || s.status === 'trial');
   }, [subscriptions]);
-
-  // Total potential wasted spend identified
-  const totalWastedAnnual = useMemo(() => {
-    let wasted = 0;
-    rarelyUsedSubscriptions.forEach(s => {
-      wasted += getMonthlyEquivalent(s) * 12;
-    });
-    overlappingInsights.forEach(o => {
-      wasted += o.potentialSavings;
-    });
-    return wasted;
-  }, [rarelyUsedSubscriptions, overlappingInsights, getMonthlyEquivalent]);
-
-  // Export CSV
-  const handleExportCSV = () => {
-    const headers = ['Service Name', 'Plan', 'Category', 'Cost', 'Billing Cycle', 'Next Renewal', 'Payment Method', 'Usage Tag', 'Status'];
-    const rows = subscriptions.map(s => [
-      `"${s.name}"`,
-      `"${s.planName || ''}"`,
-      `"${s.category}"`,
-      s.cost,
-      `"${s.billingCycle}"`,
-      `"${s.nextRenewalDate || ''}"`,
-      `"${s.paymentMethod}"`,
-      `"${s.usageFrequency || 'regular'}"`,
-      `"${s.status}"`
-    ]);
-
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `subtrack_analytics_audit_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
 
   return (
     <div className="analytics-page-container animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
@@ -231,20 +137,16 @@ export default function AnalyticsPage() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1 style={{ fontSize: '1.85rem', fontWeight: 800, margin: 0 }}>
-            Subscription Spending & Audit Analytics
+            Subscription Spending & Analytics
           </h1>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
-            Visual cost breakdowns, 30-day forecast timeline, and intelligence audit to eliminate wasted spend
+            Visual cost breakdowns and 30-day forecast schedule
           </p>
         </div>
 
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button onClick={handleExportCSV} className="btn btn-secondary btn-sm">
-            <Download size={15} />
-            <span>Export CSV Audit</span>
-          </button>
-          <button onClick={() => window.print()} className="btn btn-secondary btn-sm">
-            <Printer size={15} />
+          <button onClick={() => window.print()} className="btn btn-secondary btn-sm" style={{ fontWeight: 700 }}>
+            <Printer size={16} />
             <span>Print Report</span>
           </button>
         </div>
@@ -602,22 +504,7 @@ export default function AnalyticsPage() {
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <div
-                        style={{
-                          width: '34px',
-                          height: '34px',
-                          borderRadius: '8px',
-                          backgroundColor: sub.brandColor || 'var(--primary)',
-                          color: '#ffffff',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontWeight: 800,
-                          fontSize: '0.9rem'
-                        }}
-                      >
-                        {sub.iconText || 'S'}
-                      </div>
+                      <SubscriptionIcon subscription={sub} size={34} />
                       <div>
                         <div style={{ fontWeight: 700, fontSize: '0.925rem' }}>
                           {sub.name} <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>({sub.planName})</span>
@@ -669,266 +556,114 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* =========================================================================
-          SECTION 4: THE "AUDIT" OR "WASTED SPEND" SECTION
-         ========================================================================= */}
-      <div>
-        <div style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', marginBottom: '0.85rem' }}>
-          4. The "Audit" & Wasted Spend Intelligence
+      {/* Dedicated Print Report View: Active Subscriptions List & Category Analytics */}
+      <div id="subtrack-print-report">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #0f172a', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <img src="/logo.svg" alt="SubTrack Logo" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
+            <div>
+              <h1 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>
+                SubTrack Financial & Subscription Report
+              </h1>
+              <div style={{ fontSize: '0.825rem', color: '#64748b', marginTop: '2px' }}>
+                Account: {user?.name || 'Member'} ({user?.email || 'N/A'}) • Generated on {new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div
-          className="glass-panel"
-          style={{
-            padding: '2rem',
-            borderRadius: 'var(--radius-xl)',
-            background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, var(--bg-card) 100%)',
-            border: '1px solid rgba(245, 158, 11, 0.25)'
-          }}
-        >
-          {/* Header & Total Wasted Summary */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.75rem', flexWrap: 'wrap', gap: '1rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <div
-                style={{
-                  width: '42px',
-                  height: '42px',
-                  borderRadius: '12px',
-                  background: 'rgba(245, 158, 11, 0.18)',
-                  color: 'var(--accent-amber)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                <AlertTriangle size={22} />
-              </div>
-              <div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>
-                  Personal Finance Subscription Audit
-                </h3>
-                <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', margin: '0.2rem 0 0 0' }}>
-                  Identifies redundant overlapping tools and subscriptions flagged as rarely used.
-                </p>
-              </div>
+        {/* Executive Spending Summary */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
+          <div style={{ padding: '0.85rem 1rem', border: '1px solid #cbd5e1', borderRadius: '8px', background: '#f8fafc' }}>
+            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.04em' }}>
+              Active Subscriptions
             </div>
-
-            <div
-              style={{
-                padding: '0.75rem 1.25rem',
-                borderRadius: 'var(--radius-md)',
-                background: 'rgba(245, 158, 11, 0.15)',
-                border: '1px solid rgba(245, 158, 11, 0.3)',
-                textAlign: 'right'
-              }}
-            >
-              <div style={{ fontSize: '0.7rem', color: 'var(--accent-amber)', fontWeight: 700, textTransform: 'uppercase' }}>
-                Potential Annual Wasted Outflow
-              </div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--accent-amber)', fontFamily: 'var(--font-heading)' }}>
-                {formatAmount(totalWastedAnnual)}
-              </div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', marginTop: '0.2rem' }}>
+              {activeSubscriptions.length}
             </div>
           </div>
-
-          {/* Sub-section A: Overlapping Services */}
-          <div style={{ marginBottom: '2rem' }}>
-            <h4 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <span>Overlapping & Duplicate Subscriptions</span>
-              <span className="badge badge-amber" style={{ fontSize: '0.65rem' }}>
-                {overlappingInsights.length} Detected
-              </span>
-            </h4>
-
-            {overlappingInsights.length === 0 ? (
-              <div style={{ padding: '1rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-badge)', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                ✓ No overlapping service categories detected. Your subscriptions are well diversified.
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-                {overlappingInsights.map(item => (
-                  <div
-                    key={item.id}
-                    style={{
-                      padding: '1.25rem',
-                      borderRadius: 'var(--radius-md)',
-                      background: 'rgba(0, 0, 0, 0.3)',
-                      border: '1px solid var(--border-medium)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between'
-                    }}
-                  >
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                        <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>{item.title}</span>
-                        <span className="badge badge-rose" style={{ fontSize: '0.65rem' }}>
-                          Save {formatAmount(item.potentialSavings)}/yr
-                        </span>
-                      </div>
-                      <p style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '0.85rem' }}>
-                        {item.explanation}
-                      </p>
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-                      {item.services.map((sName, sIdx) => (
-                        <span key={sIdx} className="badge badge-primary" style={{ fontSize: '0.7rem' }}>
-                          {sName}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Sub-section B: Rarely Used or Forgotten Subscriptions */}
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
-              <h4 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <span>Forgotten & "Rarely Used" Subscriptions</span>
-                <span className="badge badge-rose" style={{ fontSize: '0.65rem' }}>
-                  {rarelyUsedSubscriptions.length} Flagged
-                </span>
-              </h4>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                Target for cancellation to reduce recurring waste
-              </span>
+          <div style={{ padding: '0.85rem 1rem', border: '1px solid #cbd5e1', borderRadius: '8px', background: '#f8fafc' }}>
+            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.04em' }}>
+              Total Monthly Outflow
             </div>
-
-            {rarelyUsedSubscriptions.length === 0 ? (
-              <div style={{ padding: '1rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-badge)', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                ✓ No subscriptions are currently tagged as rarely used. You can tag any service below or when adding a subscription.
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {rarelyUsedSubscriptions.map(sub => (
-                  <div
-                    key={sub.id}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '1rem',
-                      borderRadius: 'var(--radius-md)',
-                      background: 'rgba(0, 0, 0, 0.3)',
-                      border: '1px solid rgba(244, 63, 94, 0.3)',
-                      borderLeft: '4px solid var(--accent-rose)',
-                      flexWrap: 'wrap',
-                      gap: '0.75rem'
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <div
-                        style={{
-                          width: '36px',
-                          height: '36px',
-                          borderRadius: '8px',
-                          backgroundColor: sub.brandColor || 'var(--primary)',
-                          color: '#ffffff',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontWeight: 800
-                        }}
-                      >
-                        {sub.iconText || 'S'}
-                      </div>
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>{sub.name}</span>
-                          <span className="badge badge-rose" style={{ fontSize: '0.65rem' }}>
-                            Rarely Used
-                          </span>
-                        </div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
-                          {sub.notes || 'Tagged as rarely opened or underutilized'}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--accent-rose)', fontFamily: 'var(--font-mono)' }}>
-                          {formatAmount(sub.cost)}
-                        </div>
-                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-                          Cost: {formatAmount(getMonthlyEquivalent(sub) * 12)}/yr
-                        </div>
-                      </div>
-
-                      <div style={{ display: 'flex', gap: '0.4rem' }}>
-                        <button
-                          type="button"
-                          onClick={() => cancelSubscription(sub.id)}
-                          className="btn btn-sm btn-danger"
-                          style={{ fontSize: '0.75rem' }}
-                          title="Cancel subscription to eliminate waste"
-                        >
-                          <Ban size={13} />
-                          <span>Cancel Subscription</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => tagUsageFrequency(sub.id, 'daily')}
-                          className="btn btn-sm btn-secondary"
-                          style={{ fontSize: '0.75rem' }}
-                          title="Mark as active daily use"
-                        >
-                          <Check size={13} />
-                          <span>Keep (Regular Use)</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Quick Tagging Selector for All Active Subscriptions */}
-            <div style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-subtle)' }}>
-              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '0.6rem' }}>
-                Audit Your Services: Tag Usage Frequency
-              </div>
-              <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
-                {subscriptions.filter(s => s.status === 'active').map(sub => (
-                  <div
-                    key={sub.id}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      padding: '0.35rem 0.65rem',
-                      borderRadius: 'var(--radius-sm)',
-                      background: 'var(--bg-badge)',
-                      border: '1px solid var(--border-subtle)',
-                      fontSize: '0.775rem'
-                    }}
-                  >
-                    <span style={{ fontWeight: 600 }}>{sub.name}</span>
-                    <select
-                      value={sub.usageFrequency || 'daily'}
-                      onChange={(e) => tagUsageFrequency(sub.id, e.target.value)}
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: sub.usageFrequency === 'rarely' ? 'var(--accent-rose)' : 'var(--primary-light)',
-                        fontSize: '0.75rem',
-                        fontWeight: 700,
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <option value="daily" style={{ background: '#0f172a' }}>Daily</option>
-                      <option value="weekly" style={{ background: '#0f172a' }}>Weekly</option>
-                      <option value="rarely" style={{ background: '#0f172a' }}>Rarely Used (Flag)</option>
-                    </select>
-                  </div>
-                ))}
-              </div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', marginTop: '0.2rem' }}>
+              {formatAmount(monthlySpend)}
             </div>
           </div>
+          <div style={{ padding: '0.85rem 1rem', border: '1px solid #cbd5e1', borderRadius: '8px', background: '#f8fafc' }}>
+            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.04em' }}>
+              Projected Annual Spend
+            </div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', marginTop: '0.2rem' }}>
+              {formatAmount(yearlySpend)}
+            </div>
+          </div>
+        </div>
+
+        {/* Section A: Active Subscriptions List Table */}
+        <div style={{ marginBottom: '2.5rem' }}>
+          <h2 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: '0.75rem', color: '#0f172a', borderBottom: '1.5px solid #cbd5e1', paddingBottom: '0.4rem' }}>
+            1. Active Subscriptions List ({activeSubscriptions.length} Tracked Services)
+          </h2>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.825rem', textAlign: 'left' }}>
+            <thead>
+              <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #94a3b8' }}>
+                <th style={{ padding: '9px 10px', width: '35px', color: '#1e293b' }}>#</th>
+                <th style={{ padding: '9px 10px', color: '#1e293b' }}>Subscription Name / Plan</th>
+                <th style={{ padding: '9px 10px', color: '#1e293b' }}>Category</th>
+                <th style={{ padding: '9px 10px', color: '#1e293b' }}>Start Date</th>
+                <th style={{ padding: '9px 10px', color: '#1e293b' }}>Renewal Date</th>
+                <th style={{ padding: '9px 10px', textAlign: 'right', color: '#1e293b' }}>Price</th>
+                <th style={{ padding: '9px 10px', color: '#1e293b' }}>Payment Method</th>
+              </tr>
+            </thead>
+            <tbody>
+              {activeSubscriptions.map((sub, idx) => (
+                <tr key={sub.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                  <td style={{ padding: '8px 10px', color: '#64748b' }}>{idx + 1}</td>
+                  <td style={{ padding: '8px 10px', fontWeight: 700, color: '#0f172a' }}>
+                    {sub.name} <span style={{ fontWeight: 400, color: '#64748b', fontSize: '0.75rem' }}>({sub.planName || 'Standard'})</span>
+                  </td>
+                  <td style={{ padding: '8px 10px', color: '#334155' }}>{sub.category}</td>
+                  <td style={{ padding: '8px 10px', color: '#334155' }}>{sub.firstBillingDate || '—'}</td>
+                  <td style={{ padding: '8px 10px', color: '#334155', fontWeight: 600 }}>{sub.nextRenewalDate || '—'}</td>
+                  <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: '#0f172a' }}>
+                    {formatAmount(sub.cost)} <span style={{ fontSize: '0.7rem', fontWeight: 400, color: '#64748b' }}>/{sub.billingCycle === 'yearly' ? 'yr' : 'mo'}</span>
+                  </td>
+                  <td style={{ padding: '8px 10px', color: '#334155' }}>{sub.paymentMethod}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Section B: Category-Wise Total Analytics Table */}
+        <div style={{ marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: '0.75rem', color: '#0f172a', borderBottom: '1.5px solid #cbd5e1', paddingBottom: '0.4rem' }}>
+            2. Category-Wise Spending Analytics
+          </h2>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.825rem', textAlign: 'left' }}>
+            <thead>
+              <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #94a3b8' }}>
+                <th style={{ padding: '9px 10px', color: '#1e293b' }}>Category</th>
+                <th style={{ padding: '9px 10px', textAlign: 'center', color: '#1e293b' }}>Active Services</th>
+                <th style={{ padding: '9px 10px', textAlign: 'right', color: '#1e293b' }}>Monthly Spend</th>
+                <th style={{ padding: '9px 10px', textAlign: 'right', color: '#1e293b' }}>Projected Annual Spend</th>
+                <th style={{ padding: '9px 10px', textAlign: 'right', color: '#1e293b' }}>% of Total Outflow</th>
+              </tr>
+            </thead>
+            <tbody>
+              {categoryBreakdown.map((cat, idx) => (
+                <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                  <td style={{ padding: '8px 10px', fontWeight: 700, color: '#0f172a' }}>{cat.category}</td>
+                  <td style={{ padding: '8px 10px', textAlign: 'center', color: '#334155' }}>{cat.count}</td>
+                  <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: '#0f172a' }}>{formatAmount(cat.totalCost)}</td>
+                  <td style={{ padding: '8px 10px', textAlign: 'right', color: '#334155' }}>{formatAmount(cat.totalCost * 12)}</td>
+                  <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: '#0f172a' }}>{cat.percentage}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

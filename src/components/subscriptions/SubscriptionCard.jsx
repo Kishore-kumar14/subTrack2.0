@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useSubscriptions } from '../../context/SubscriptionContext';
 import { CategoryBadge, StatusBadge } from '../common/Badge';
+import SubscriptionIcon from '../common/SubscriptionIcon';
 import { Calendar, CreditCard, RefreshCw, MoreVertical, Edit2, Trash2, PauseCircle, PlayCircle, Clock } from 'lucide-react';
 
 export default function SubscriptionCard({ subscription, onEdit }) {
@@ -35,23 +36,7 @@ export default function SubscriptionCard({ subscription, onEdit }) {
       <div>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div
-              style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '12px',
-                backgroundColor: subscription.brandColor || '#6366f1',
-                color: '#ffffff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: 800,
-                fontSize: '1.2rem',
-                boxShadow: '0 4px 10px rgba(0, 0, 0, 0.25)'
-              }}
-            >
-              {subscription.iconText || subscription.name?.charAt(0) || 'S'}
-            </div>
+            <SubscriptionIcon subscription={subscription} size={42} />
             <div>
               <h4 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>
                 {subscription.name}

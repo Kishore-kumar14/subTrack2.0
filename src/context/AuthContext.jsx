@@ -5,10 +5,7 @@ const AuthContext = createContext();
 
 export const CURRENCY_CONFIG = {
   INR: { symbol: '₹', rateFromINR: 1, name: 'Indian Rupee' },
-  USD: { symbol: '$', rateFromINR: 0.012, name: 'US Dollar' },
-  EUR: { symbol: '€', rateFromINR: 0.011, name: 'Euro' },
-  GBP: { symbol: '£', rateFromINR: 0.0095, name: 'British Pound' },
-  JPY: { symbol: '¥', rateFromINR: 1.85, name: 'Japanese Yen' }
+  USD: { symbol: '$', rateFromINR: 0.012, name: 'US Dollar' }
 };
 
 export function AuthProvider({ children }) {
@@ -31,7 +28,8 @@ export function AuthProvider({ children }) {
 
 
   const [currency, setCurrency] = useState(() => {
-    return localStorage.getItem('subtrack_currency') || user?.currency || 'INR';
+    const saved = localStorage.getItem('subtrack_currency') || user?.currency || 'INR';
+    return CURRENCY_CONFIG[saved] ? saved : 'INR';
   });
 
   const [theme, setTheme] = useState(() => {
@@ -74,17 +72,14 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Convert and format currency based on active selection
+  // Convert and format currency based on active selection (INR default, USD supported)
   const formatAmount = (costInINR) => {
     if (costInINR === null || costInINR === undefined) return '—';
     const config = CURRENCY_CONFIG[currency] || CURRENCY_CONFIG.INR;
     const converted = costInINR * config.rateFromINR;
 
-    // Formatting based on currency standard
     if (currency === 'INR') {
       return `${config.symbol}${Math.round(converted).toLocaleString('en-IN')}`;
-    } else if (currency === 'JPY') {
-      return `${config.symbol}${Math.round(converted).toLocaleString('ja-JP')}`;
     } else {
       return `${config.symbol}${converted.toFixed(2)}`;
     }

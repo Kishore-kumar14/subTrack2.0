@@ -2,6 +2,7 @@ import React from 'react';
 import { useSubscriptions } from '../../context/SubscriptionContext';
 import { useAuth } from '../../context/AuthContext';
 import { Bell, X, AlertTriangle, CheckCircle2, Clock, Ban, RefreshCw, Sparkles } from 'lucide-react';
+import SubscriptionIcon from '../common/SubscriptionIcon';
 
 export default function NotificationDrawer({ isOpen, onClose }) {
   const { urgentAlerts, renewSubscription, cancelSubscription, snoozeAlert } = useSubscriptions();
@@ -114,22 +115,7 @@ export default function NotificationDrawer({ isOpen, onClose }) {
                 {/* Header */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                    <div
-                      style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '8px',
-                        backgroundColor: alert.brandColor || 'var(--primary)',
-                        color: '#ffffff',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: 700,
-                        fontSize: '0.9rem'
-                      }}
-                    >
-                      {alert.iconText || 'S'}
-                    </div>
+                    <SubscriptionIcon subscription={alert} size={32} />
                     <div>
                       <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{alert.name}</div>
                       <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>

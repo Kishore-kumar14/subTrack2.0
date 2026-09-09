@@ -9,7 +9,6 @@ import {
   Filter,
   LayoutGrid,
   List,
-  Plus,
   ArrowUpDown,
   X,
   Sparkles,
@@ -132,15 +131,6 @@ export default function SubscriptionsPage({ onOpenAddModal, onEditSubscription }
               <List size={16} />
             </button>
           </div>
-
-          <button
-            onClick={onOpenAddModal}
-            className="btn btn-primary"
-            style={{ fontWeight: 700 }}
-          >
-            <Plus size={18} />
-            <span>Add Subscription</span>
-          </button>
         </div>
       </div>
 
@@ -318,7 +308,7 @@ export default function SubscriptionsPage({ onOpenAddModal, onEditSubscription }
           <Sparkles size={48} style={{ color: 'var(--primary-light)', margin: '0 auto 1rem auto' }} />
           <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>No matching subscriptions found</h3>
           <p style={{ color: 'var(--text-secondary)', maxWidth: '400px', margin: '0 auto 1.5rem auto', fontSize: '0.875rem' }}>
-            Try broadening your search or resetting active filters. Or add a new subscription plan now.
+            Try broadening your search or resetting active filters.
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem' }}>
             {hasActiveFilters && (
@@ -326,10 +316,6 @@ export default function SubscriptionsPage({ onOpenAddModal, onEditSubscription }
                 Reset Filters
               </button>
             )}
-            <button onClick={onOpenAddModal} className="btn btn-primary">
-              <Plus size={16} />
-              <span>Add Subscription</span>
-            </button>
           </div>
         </div>
       ) : viewMode === 'grid' ? (

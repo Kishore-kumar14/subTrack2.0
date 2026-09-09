@@ -10,9 +10,10 @@ import {
   User,
   LogOut,
   Sparkles,
-  Layers,
+  LayoutDashboard,
   Calendar,
   PieChart,
+  CreditCard,
   Home,
   LogIn,
   UserPlus,
@@ -56,45 +57,83 @@ export default function Navbar({ activePage, setActivePage, onOpenAddModal, onOp
         />
 
 
-        {/* Desktop Navigation Links — ONLY shown when inside App */}
+        {/* Desktop Navigation Links — Eye-catching Segmented Bar */}
         {isAppView && (
           <nav
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.4rem'
+              gap: '0.35rem',
+              padding: '4px',
+              borderRadius: 'var(--radius-lg)',
+              background: 'var(--bg-badge)',
+              border: '1px solid var(--border-medium)',
+              boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.1)'
             }}
             className="desktop-nav"
           >
             <button
               onClick={() => setActivePage('dashboard')}
               className={`btn btn-sm ${activePage === 'dashboard' ? 'btn-primary' : 'btn-ghost'}`}
-              style={{ borderRadius: 'var(--radius-sm)' }}
+              style={{
+                borderRadius: 'var(--radius-md)',
+                fontWeight: activePage === 'dashboard' ? 700 : 600,
+                padding: '0.45rem 0.95rem',
+                fontSize: '0.85rem',
+                color: activePage === 'dashboard' ? '#ffffff' : 'var(--text-primary)',
+                boxShadow: activePage === 'dashboard' ? '0 3px 12px var(--primary-glow)' : 'none',
+                transition: 'all var(--transition-fast)'
+              }}
             >
-              <Layers size={15} />
+              <LayoutDashboard size={16} />
               <span>Dashboard</span>
             </button>
             <button
               onClick={() => setActivePage('subscriptions')}
               className={`btn btn-sm ${activePage === 'subscriptions' ? 'btn-primary' : 'btn-ghost'}`}
-              style={{ borderRadius: 'var(--radius-sm)' }}
+              style={{
+                borderRadius: 'var(--radius-md)',
+                fontWeight: activePage === 'subscriptions' ? 700 : 600,
+                padding: '0.45rem 0.95rem',
+                fontSize: '0.85rem',
+                color: activePage === 'subscriptions' ? '#ffffff' : 'var(--text-primary)',
+                boxShadow: activePage === 'subscriptions' ? '0 3px 12px var(--primary-glow)' : 'none',
+                transition: 'all var(--transition-fast)'
+              }}
             >
+              <CreditCard size={16} />
               <span>Subscriptions</span>
             </button>
             <button
               onClick={() => setActivePage('calendar')}
               className={`btn btn-sm ${activePage === 'calendar' ? 'btn-primary' : 'btn-ghost'}`}
-              style={{ borderRadius: 'var(--radius-sm)' }}
+              style={{
+                borderRadius: 'var(--radius-md)',
+                fontWeight: activePage === 'calendar' ? 700 : 600,
+                padding: '0.45rem 0.95rem',
+                fontSize: '0.85rem',
+                color: activePage === 'calendar' ? '#ffffff' : 'var(--text-primary)',
+                boxShadow: activePage === 'calendar' ? '0 3px 12px var(--primary-glow)' : 'none',
+                transition: 'all var(--transition-fast)'
+              }}
             >
-              <Calendar size={15} />
+              <Calendar size={16} />
               <span>Calendar</span>
             </button>
             <button
               onClick={() => setActivePage('analytics')}
               className={`btn btn-sm ${activePage === 'analytics' ? 'btn-primary' : 'btn-ghost'}`}
-              style={{ borderRadius: 'var(--radius-sm)' }}
+              style={{
+                borderRadius: 'var(--radius-md)',
+                fontWeight: activePage === 'analytics' ? 700 : 600,
+                padding: '0.45rem 0.95rem',
+                fontSize: '0.85rem',
+                color: activePage === 'analytics' ? '#ffffff' : 'var(--text-primary)',
+                boxShadow: activePage === 'analytics' ? '0 3px 12px var(--primary-glow)' : 'none',
+                transition: 'all var(--transition-fast)'
+              }}
             >
-              <PieChart size={15} />
+              <PieChart size={16} />
               <span>Analytics</span>
             </button>
           </nav>

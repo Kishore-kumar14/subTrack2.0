@@ -15,8 +15,7 @@ import CalendarPage from './pages/CalendarPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import ProfilePage from './pages/ProfilePage';
 
-// Mobile Navigation bar icons
-import { Home, Layers, Calendar, PieChart, User, Plus } from 'lucide-react';
+import { Home, LayoutDashboard, Calendar, PieChart, CreditCard, User, Plus } from 'lucide-react';
 
 function SubTrackMain() {
   const { isAuthenticated } = useAuth();
@@ -174,12 +173,17 @@ function SubTrackMain() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '2px',
-            fontSize: '0.65rem',
-            color: activePage === 'dashboard' ? 'var(--primary-light)' : 'var(--text-muted)'
+            gap: '3px',
+            fontSize: '0.7rem',
+            fontWeight: activePage === 'dashboard' ? 700 : 500,
+            color: activePage === 'dashboard' ? 'var(--primary-light)' : 'var(--text-secondary)',
+            background: activePage === 'dashboard' ? 'rgba(37, 99, 235, 0.15)' : 'transparent',
+            padding: '5px 10px',
+            borderRadius: '10px',
+            transition: 'all var(--transition-fast)'
           }}
         >
-          <Layers size={18} />
+          <LayoutDashboard size={18} />
           <span>Dashboard</span>
         </button>
 
@@ -190,35 +194,40 @@ function SubTrackMain() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '2px',
-            fontSize: '0.65rem',
-            color: activePage === 'subscriptions' ? 'var(--primary-light)' : 'var(--text-muted)'
+            gap: '3px',
+            fontSize: '0.7rem',
+            fontWeight: activePage === 'subscriptions' ? 700 : 500,
+            color: activePage === 'subscriptions' ? 'var(--primary-light)' : 'var(--text-secondary)',
+            background: activePage === 'subscriptions' ? 'rgba(37, 99, 235, 0.15)' : 'transparent',
+            padding: '5px 10px',
+            borderRadius: '10px',
+            transition: 'all var(--transition-fast)'
           }}
         >
-          <Home size={18} />
-          <span>Subs</span>
+          <CreditCard size={18} />
+          <span>Subscriptions</span>
         </button>
 
         {/* Central Add Button */}
         <button
           onClick={handleOpenAddModal}
           style={{
-            width: '44px',
-            height: '44px',
+            width: '46px',
+            height: '46px',
             borderRadius: '50%',
             background: 'var(--gradient-primary)',
             color: '#ffffff',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            marginTop: '-18px',
-            boxShadow: '0 4px 12px var(--primary-glow)',
+            marginTop: '-20px',
+            boxShadow: '0 4px 14px var(--primary-glow)',
             border: 'none',
             cursor: 'pointer'
           }}
           aria-label="Add Subscription"
         >
-          <Plus size={22} />
+          <Plus size={24} />
         </button>
 
         <button
@@ -228,9 +237,14 @@ function SubTrackMain() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '2px',
-            fontSize: '0.65rem',
-            color: activePage === 'calendar' ? 'var(--primary-light)' : 'var(--text-muted)'
+            gap: '3px',
+            fontSize: '0.7rem',
+            fontWeight: activePage === 'calendar' ? 700 : 500,
+            color: activePage === 'calendar' ? 'var(--primary-light)' : 'var(--text-secondary)',
+            background: activePage === 'calendar' ? 'rgba(37, 99, 235, 0.15)' : 'transparent',
+            padding: '5px 10px',
+            borderRadius: '10px',
+            transition: 'all var(--transition-fast)'
           }}
         >
           <Calendar size={18} />
@@ -244,9 +258,14 @@ function SubTrackMain() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '2px',
-            fontSize: '0.65rem',
-            color: activePage === 'analytics' ? 'var(--primary-light)' : 'var(--text-muted)'
+            gap: '3px',
+            fontSize: '0.7rem',
+            fontWeight: activePage === 'analytics' ? 700 : 500,
+            color: activePage === 'analytics' ? 'var(--primary-light)' : 'var(--text-secondary)',
+            background: activePage === 'analytics' ? 'rgba(37, 99, 235, 0.15)' : 'transparent',
+            padding: '5px 10px',
+            borderRadius: '10px',
+            transition: 'all var(--transition-fast)'
           }}
         >
           <PieChart size={18} />

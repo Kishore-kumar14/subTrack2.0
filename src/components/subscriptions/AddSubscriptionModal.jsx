@@ -4,6 +4,7 @@ import RechargePlanPicker from './RechargePlanPicker';
 import { CATEGORIES, PAYMENT_METHODS } from '../../data/providerCatalog';
 import { useSubscriptions } from '../../context/SubscriptionContext';
 import { useAuth } from '../../context/AuthContext';
+import SubscriptionIcon from '../common/SubscriptionIcon';
 import { Sparkles, Edit3, Calendar, DollarSign, Bell, CreditCard, Layers, Tag } from 'lucide-react';
 
 export default function AddSubscriptionModal({ isOpen, onClose, editingSubscription = null }) {
@@ -200,21 +201,7 @@ export default function AddSubscriptionModal({ isOpen, onClose, editingSubscript
                 marginBottom: '1.25rem'
               }}
             >
-              <div
-                style={{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '8px',
-                  backgroundColor: formData.brandColor,
-                  color: '#ffffff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 800
-                }}
-              >
-                {formData.iconText || 'S'}
-              </div>
+              <SubscriptionIcon subscription={formData} size={36} />
               <div>
                 <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>
                   {formData.name} {formData.planName ? `• ${formData.planName}` : ''}

@@ -1,15 +1,11 @@
 import React from 'react';
 import {
-  Sparkles,
-  ShieldCheck,
   Calendar,
   Zap,
   ArrowRight,
   LogIn,
   UserPlus,
-  CheckCircle2,
-  Bell,
-  Clock
+  Bell
 } from 'lucide-react';
 
 import Logo from '../components/common/Logo';
@@ -34,26 +30,6 @@ export default function HomePage({ onNavigateToApp }) {
         {/* Full Brand Logo Showcase with Tagline */}
         <div style={{ marginBottom: '2.5rem' }}>
           <Logo size="lg" showTagline={true} />
-        </div>
-
-        {/* Glow pill badge */}
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.4rem 1.1rem',
-            borderRadius: 'var(--radius-full)',
-            background: 'rgba(99, 102, 241, 0.12)',
-            border: '1px solid rgba(99, 102, 241, 0.3)',
-            color: 'var(--primary-light)',
-            fontSize: '0.825rem',
-            fontWeight: 700,
-            marginBottom: '1.25rem'
-          }}
-        >
-          <Sparkles size={16} />
-          <span>Centralized Subscription & Expense Tracker</span>
         </div>
 
         {/* Hero Title */}
@@ -131,22 +107,6 @@ export default function HomePage({ onNavigateToApp }) {
               </button>
             </>
           )}
-        </div>
-
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginTop: '2rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <CheckCircle2 size={15} style={{ color: 'var(--accent-emerald)' }} />
-            <span>1-Click Demo Available on Login</span>
-          </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <CheckCircle2 size={15} style={{ color: 'var(--accent-emerald)' }} />
-            <span>Multi-Currency (₹, $, €, £)</span>
-          </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <CheckCircle2 size={15} style={{ color: 'var(--accent-emerald)' }} />
-            <span>Zero Unwanted Card Charges</span>
-          </span>
         </div>
       </section>
 
@@ -228,68 +188,7 @@ export default function HomePage({ onNavigateToApp }) {
           </div>
         </div>
       </section>
-
-      {/* Clean Call To Action Box */}
-      <section style={{ marginTop: '3.5rem', textAlign: 'center' }}>
-        <div
-          className="glass-panel"
-          style={{
-            padding: '3rem 2rem',
-            borderRadius: 'var(--radius-xl)',
-            background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(18, 26, 44, 0.9) 100%)',
-            border: '1px solid var(--border-medium)'
-          }}
-        >
-          <h2 style={{ fontSize: '1.85rem', fontWeight: 800, marginBottom: '0.75rem' }}>
-            Ready to Explore SubTrack?
-          </h2>
-          <p style={{ color: 'var(--text-secondary)', maxWidth: '520px', margin: '0 auto 1.75rem auto', fontSize: '0.925rem' }}>
-            Sign in to your account or create a new profile. You can also use our 1-click demo login on the sign in page to explore with pre-populated subscriptions.
-          </p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            {isAuthenticated ? (
-              <>
-                <button
-                  onClick={() => onNavigateToApp('dashboard')}
-                  className="btn btn-primary btn-lg"
-                  style={{ fontWeight: 700 }}
-                >
-                  <span>Go to Your Dashboard</span>
-                  <ArrowRight size={18} />
-                </button>
-                <button
-                  onClick={() => onNavigateToApp('login')}
-                  className="btn btn-secondary btn-lg"
-                  style={{ fontWeight: 700 }}
-                >
-                  <LogIn size={18} />
-                  <span>Switch Account</span>
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  onClick={() => onNavigateToApp('login')}
-                  className="btn btn-primary btn-lg"
-                  style={{ fontWeight: 700 }}
-                >
-                  <LogIn size={18} />
-                  <span>Sign In / Log In</span>
-                </button>
-                <button
-                  onClick={() => onNavigateToApp('signup')}
-                  className="btn btn-secondary btn-lg"
-                  style={{ fontWeight: 700 }}
-                >
-                  <UserPlus size={18} />
-                  <span>Create Account</span>
-                </button>
-              </>
-            )}
-          </div>
-
-        </div>
-      </section>
     </div>
   );
 }
+

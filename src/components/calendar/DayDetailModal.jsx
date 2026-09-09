@@ -3,6 +3,7 @@ import Modal from '../common/Modal';
 import { useAuth } from '../../context/AuthContext';
 import { useSubscriptions } from '../../context/SubscriptionContext';
 import { CategoryBadge, StatusBadge } from '../common/Badge';
+import SubscriptionIcon from '../common/SubscriptionIcon';
 import { Calendar, CreditCard, RefreshCw } from 'lucide-react';
 
 export default function DayDetailModal({ isOpen, onClose, date, daySubscriptions = [] }) {
@@ -60,22 +61,7 @@ export default function DayDetailModal({ isOpen, onClose, date, daySubscriptions
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <div
-                style={{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '10px',
-                  backgroundColor: sub.brandColor || 'var(--primary)',
-                  color: '#ffffff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 800,
-                  fontSize: '1rem'
-                }}
-              >
-                {sub.iconText || 'S'}
-              </div>
+              <SubscriptionIcon subscription={sub} size={36} />
               <div>
                 <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{sub.name}</div>
                 <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>

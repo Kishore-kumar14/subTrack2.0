@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { PROVIDER_CATALOG, CATEGORIES } from '../../data/providerCatalog';
 import { useAuth } from '../../context/AuthContext';
+import SubscriptionIcon from '../common/SubscriptionIcon';
 import { Search, CheckCircle2, Zap, ArrowRight, ExternalLink, Sparkles } from 'lucide-react';
 
 export default function RechargePlanPicker({ onSelectPlan }) {
@@ -123,18 +124,7 @@ export default function RechargePlanPicker({ onSelectPlan }) {
                   transform: isSelected ? 'scale(1.02)' : 'none'
                 }}
               >
-                <div
-                  className="provider-icon-wrapper"
-                  style={{
-                    backgroundColor: provider.brandColor,
-                    color: '#ffffff',
-                    width: '38px',
-                    height: '38px',
-                    fontSize: '1.1rem'
-                  }}
-                >
-                  {provider.iconText}
-                </div>
+                <SubscriptionIcon subscription={provider} size={38} style={{ margin: '0 auto 0.4rem auto' }} />
                 <div className="provider-name" style={{ fontSize: '0.78rem' }}>
                   {provider.name}
                 </div>
@@ -172,22 +162,7 @@ export default function RechargePlanPicker({ onSelectPlan }) {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <div
-                style={{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '10px',
-                  backgroundColor: selectedProvider.brandColor,
-                  color: '#ffffff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 800,
-                  fontSize: '1.1rem'
-                }}
-              >
-                {selectedProvider.iconText}
-              </div>
+              <SubscriptionIcon subscription={selectedProvider} size={38} />
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <h4 style={{ fontSize: '1.05rem', margin: 0 }}>{selectedProvider.name} Plans</h4>

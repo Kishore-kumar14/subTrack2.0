@@ -2,9 +2,9 @@ import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useSubscriptions } from '../context/SubscriptionContext';
 import StatCard from '../components/common/StatCard';
-import SubscriptionCard from '../components/subscriptions/SubscriptionCard';
+import SubscriptionIcon from '../components/common/SubscriptionIcon';
 import {
-  CreditCard,
+  Wallet,
   Calendar,
   Sparkles,
   TrendingUp,
@@ -13,7 +13,6 @@ import {
   Layers,
   ShieldAlert,
   ArrowRight,
-  Plus,
   RefreshCw,
   Ban
 } from 'lucide-react';
@@ -62,17 +61,6 @@ export default function DashboardPage({ onNavigate, onOpenAddModal, onEditSubscr
             Here is your subscription financial overview and upcoming billing schedule.
           </p>
         </div>
-
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          <button
-            onClick={onOpenAddModal}
-            className="btn btn-primary"
-            style={{ fontWeight: 700 }}
-          >
-            <Plus size={18} />
-            <span>Add Subscription</span>
-          </button>
-        </div>
       </div>
 
       {/* 4 Stat Metric Cards */}
@@ -89,7 +77,7 @@ export default function DashboardPage({ onNavigate, onOpenAddModal, onEditSubscr
           subtitle="Normalized recurring outflow"
           badgeText="Active Pace"
           badgeType="primary"
-          icon={CreditCard}
+          icon={Wallet}
           accentColor="var(--primary)"
         />
 
@@ -131,8 +119,8 @@ export default function DashboardPage({ onNavigate, onOpenAddModal, onEditSubscr
           style={{
             padding: '1.5rem',
             borderRadius: 'var(--radius-xl)',
-            background: 'linear-gradient(135deg, rgba(244, 63, 94, 0.1) 0%, rgba(18, 26, 44, 0.9) 100%)',
-            border: '1px solid rgba(244, 63, 94, 0.3)'
+            background: 'linear-gradient(135deg, rgba(244, 63, 94, 0.08) 0%, var(--bg-card) 100%)',
+            border: '1px solid rgba(244, 63, 94, 0.35)'
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -152,10 +140,10 @@ export default function DashboardPage({ onNavigate, onOpenAddModal, onEditSubscr
                 <AlertTriangle size={20} />
               </div>
               <div>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0 }}>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
                   Action Center — {urgentAlerts.length} Renewal{urgentAlerts.length === 1 ? '' : 's'} Due Soon
                 </h3>
-                <div style={{ fontSize: '0.775rem', color: 'var(--text-muted)' }}>
+                <div style={{ fontSize: '0.775rem', color: 'var(--text-secondary)' }}>
                   Take immediate action to retain, cancel, or mark subscriptions as renewed.
                 </div>
               </div>
@@ -179,8 +167,9 @@ export default function DashboardPage({ onNavigate, onOpenAddModal, onEditSubscr
                 style={{
                   padding: '1rem',
                   borderRadius: 'var(--radius-md)',
-                  background: 'rgba(0, 0, 0, 0.3)',
-                  border: alert.isFreeTrial ? '1.5px solid var(--accent-amber)' : '1.5px solid rgba(244, 63, 94, 0.4)',
+                  background: 'var(--bg-surface)',
+                  border: alert.isFreeTrial ? '1.5px solid var(--accent-amber)' : '1.5px solid rgba(244, 63, 94, 0.35)',
+                  boxShadow: 'var(--shadow-sm)',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between'
@@ -189,26 +178,11 @@ export default function DashboardPage({ onNavigate, onOpenAddModal, onEditSubscr
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <div
-                        style={{
-                          width: '28px',
-                          height: '28px',
-                          borderRadius: '6px',
-                          backgroundColor: alert.brandColor || 'var(--primary)',
-                          color: '#ffffff',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontWeight: 800,
-                          fontSize: '0.85rem'
-                        }}
-                      >
-                        {alert.iconText || 'S'}
-                      </div>
-                      <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>{alert.name}</span>
+                      <SubscriptionIcon subscription={alert} size={28} />
+                      <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>{alert.name}</span>
                     </div>
 
-                    <span style={{ fontWeight: 800, fontSize: '0.95rem', fontFamily: 'var(--font-mono)' }}>
+                    <span style={{ fontWeight: 800, fontSize: '0.95rem', fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>
                       {formatAmount(alert.cost)}
                     </span>
                   </div>
@@ -300,35 +274,20 @@ export default function DashboardPage({ onNavigate, onOpenAddModal, onEditSubscr
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div
-                      style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '8px',
-                        backgroundColor: item.brandColor || 'var(--primary)',
-                        color: '#ffffff',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: 800,
-                        fontSize: '0.85rem'
-                      }}
-                    >
-                      {item.iconText || 'S'}
-                    </div>
+                    <SubscriptionIcon subscription={item} size={32} />
                     <div>
-                      <div style={{ fontWeight: 700, fontSize: '0.875rem' }}>{item.name}</div>
-                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                      <div style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--text-primary)' }}>{item.name}</div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
                         Due {item.daysLeft === 0 ? 'today' : item.daysLeft === 1 ? 'tomorrow' : `in ${item.daysLeft} days`}
                       </div>
                     </div>
                   </div>
 
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontWeight: 800, fontSize: '0.95rem', fontFamily: 'var(--font-mono)' }}>
+                    <div style={{ fontWeight: 800, fontSize: '0.95rem', fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>
                       {formatAmount(item.cost)}
                     </div>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
                       {item.paymentMethod}
                     </div>
                   </div>
@@ -341,7 +300,7 @@ export default function DashboardPage({ onNavigate, onOpenAddModal, onEditSubscr
         {/* Right: Category Distribution Preview */}
         <div className="glass-panel" style={{ padding: '1.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>Category Spending</h3>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>Category Spending</h3>
             <button
               onClick={() => onNavigate('analytics')}
               className="btn-ghost"
@@ -356,9 +315,9 @@ export default function DashboardPage({ onNavigate, onOpenAddModal, onEditSubscr
             {categoryBreakdown.slice(0, 5).map(cat => (
               <div key={cat.category}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.825rem', marginBottom: '0.35rem' }}>
-                  <span style={{ fontWeight: 600 }}>{cat.category} ({cat.count})</span>
+                  <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{cat.category} ({cat.count})</span>
                   <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
-                    {formatAmount(cat.totalCost)} <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>({cat.percentage}%)</span>
+                    {formatAmount(cat.totalCost)} <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>({cat.percentage}%)</span>
                   </span>
                 </div>
                 {/* Progress bar */}
@@ -366,7 +325,7 @@ export default function DashboardPage({ onNavigate, onOpenAddModal, onEditSubscr
                   style={{
                     height: '7px',
                     width: '100%',
-                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    backgroundColor: 'rgba(128, 128, 128, 0.2)',
                     borderRadius: 'var(--radius-full)',
                     overflow: 'hidden'
                   }}
@@ -383,42 +342,6 @@ export default function DashboardPage({ onNavigate, onOpenAddModal, onEditSubscr
               </div>
             ))}
           </div>
-        </div>
-      </div>
-
-      {/* Active Subscriptions Grid Preview */}
-      <div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-          <div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>Your Subscriptions</h3>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              Showing {Math.min(subscriptions.length, 6)} of {subscriptions.length} tracked services
-            </div>
-          </div>
-
-          <button
-            onClick={() => onNavigate('subscriptions')}
-            className="btn btn-secondary btn-sm"
-          >
-            <span>Explore All & Filter</span>
-            <ArrowRight size={15} />
-          </button>
-        </div>
-
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: '1.25rem'
-          }}
-        >
-          {subscriptions.slice(0, 6).map(sub => (
-            <SubscriptionCard
-              key={sub.id}
-              subscription={sub}
-              onEdit={onEditSubscription}
-            />
-          ))}
         </div>
       </div>
     </div>

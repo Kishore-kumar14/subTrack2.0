@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useSubscriptions } from '../../context/SubscriptionContext';
 import { CategoryBadge, StatusBadge } from '../common/Badge';
+import SubscriptionIcon from '../common/SubscriptionIcon';
 import { RefreshCw, Edit2, Trash2, PauseCircle, PlayCircle, ExternalLink } from 'lucide-react';
 
 export default function SubscriptionTable({ subscriptions, onEdit }) {
@@ -63,23 +64,7 @@ export default function SubscriptionTable({ subscriptions, onEdit }) {
                 {/* Service Name & Icon */}
                 <td style={{ padding: '1rem 1.25rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div
-                      style={{
-                        width: '34px',
-                        height: '34px',
-                        borderRadius: '8px',
-                        backgroundColor: sub.brandColor || 'var(--primary)',
-                        color: '#ffffff',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: 700,
-                        fontSize: '0.95rem',
-                        flexShrink: 0
-                      }}
-                    >
-                      {sub.iconText || sub.name?.charAt(0) || 'S'}
-                    </div>
+                    <SubscriptionIcon subscription={sub} size={34} />
                     <div>
                       <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{sub.name}</div>
                       <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>{sub.planName || 'Plan'}</div>

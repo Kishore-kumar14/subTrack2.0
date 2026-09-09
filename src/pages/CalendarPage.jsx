@@ -4,6 +4,7 @@ import DayDetailModal from '../components/calendar/DayDetailModal';
 import { useSubscriptions } from '../context/SubscriptionContext';
 import { useAuth } from '../context/AuthContext';
 import { Calendar as CalendarIcon, List, Clock, CreditCard, RefreshCw } from 'lucide-react';
+import SubscriptionIcon from '../components/common/SubscriptionIcon';
 
 export default function CalendarPage() {
   const { subscriptions, renewSubscription } = useSubscriptions();
@@ -116,23 +117,7 @@ export default function CalendarPage() {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-                  <div
-                    style={{
-                      width: '40px',
-                      height: '40px',
-                      borderRadius: '10px',
-                      backgroundColor: item.brandColor || 'var(--primary)',
-                      color: '#ffffff',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 800,
-                      fontSize: '1rem'
-                    }}
-                  >
-                    {item.iconText || 'S'}
-                  </div>
-
+                  <SubscriptionIcon subscription={item} size={36} />
                   <div>
                     <div style={{ fontWeight: 700, fontSize: '1rem' }}>{item.name}</div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
