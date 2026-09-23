@@ -43,6 +43,7 @@ export const INITIAL_SUBSCRIPTIONS = [
     usageFrequency: 'daily',
     brandColor: '#E50914',
     iconText: 'N',
+    logo: '/logos/netflix-seeklogo.svg',
     notes: 'Family sharing on living room TV & 2 phones.'
   },
   {
@@ -85,6 +86,7 @@ export const INITIAL_SUBSCRIPTIONS = [
     usageFrequency: 'daily',
     brandColor: '#10A37F',
     iconText: '⚡',
+    logo: '/logos/open-ai-seeklogo.svg',
     notes: 'Used daily for programming, research, and data analysis.'
   },
   {
@@ -106,6 +108,7 @@ export const INITIAL_SUBSCRIPTIONS = [
     usageFrequency: 'daily',
     brandColor: '#1DB954',
     iconText: '♫',
+    logo: '/logos/spotify-seeklogo.svg',
     notes: 'Primary music platform shared with partner.'
   },
   {
@@ -169,6 +172,7 @@ export const INITIAL_SUBSCRIPTIONS = [
     usageFrequency: 'daily',
     brandColor: '#24292e',
     iconText: '⌥',
+    logo: '/logos/github-seeklogo.svg',
     notes: 'AI auto-completions in VS Code.'
   },
   {
@@ -211,6 +215,7 @@ export const INITIAL_SUBSCRIPTIONS = [
     usageFrequency: 'weekly',
     brandColor: '#00A8E1',
     iconText: 'P',
+    logo: '/logos/amazon-prime-video-seeklogo.svg',
     notes: 'Free fast shipping, Prime Video 4K, and Prime Reading.'
   }
 ];

@@ -29,6 +29,7 @@ export const PROVIDER_CATALOG = [
     category: 'Entertainment',
     brandColor: '#E50914',
     iconText: 'N',
+    logo: '/logos/netflix-seeklogo.svg',
     website: 'https://netflix.com',
     description: 'Watch TV shows, movies, and award-winning Netflix originals.',
     plans: [
@@ -76,6 +77,7 @@ export const PROVIDER_CATALOG = [
     category: 'Music & Audio',
     brandColor: '#1DB954',
     iconText: '♫',
+    logo: '/logos/spotify-seeklogo.svg',
     website: 'https://spotify.com',
     description: 'Stream millions of ad-free songs, curated playlists, and podcasts.',
     plans: [
@@ -132,6 +134,7 @@ export const PROVIDER_CATALOG = [
     category: 'Entertainment',
     brandColor: '#00A8E1',
     iconText: 'P',
+    logo: '/logos/amazon-prime-video-seeklogo.svg',
     website: 'https://amazon.com/prime',
     description: 'Free expedited delivery, Prime Video 4K, Prime Music & exclusive deals.',
     plans: [
@@ -170,6 +173,7 @@ export const PROVIDER_CATALOG = [
     category: 'Entertainment',
     brandColor: '#FF0000',
     iconText: '▶',
+    logo: '/logos/youtube-2017-icon-seeklogo-3.svg',
     website: 'https://youtube.com/premium',
     description: 'Ad-free YouTube videos, background playback, and YouTube Music Premium.',
     plans: [
@@ -217,6 +221,7 @@ export const PROVIDER_CATALOG = [
     category: 'Entertainment',
     brandColor: '#0c2044',
     iconText: 'D+',
+    logo: '/logos/jiohotstar-seeklogo.svg',
     website: 'https://hotstar.com',
     description: 'Disney, Marvel, Star Wars, Pixar, HBO shows & live Premier sports.',
     plans: [
@@ -255,6 +260,7 @@ export const PROVIDER_CATALOG = [
     category: 'AI & Dev',
     brandColor: '#10A37F',
     iconText: '⚡',
+    logo: '/logos/open-ai-seeklogo.svg',
     website: 'https://chatgpt.com',
     description: 'Access GPT-4o, advanced reasoning, DALL-E, deep research, and custom GPTs.',
     plans: [
@@ -293,6 +299,7 @@ export const PROVIDER_CATALOG = [
     category: 'AI & Dev',
     brandColor: '#24292e',
     iconText: '⌥',
+    logo: '/logos/github-seeklogo.svg',
     website: 'https://github.com/features/copilot',
     description: 'Your AI pair programmer built inside VS Code, JetBrains, and GitHub CLI.',
     plans: [
@@ -416,6 +423,7 @@ export const PROVIDER_CATALOG = [
     category: 'Productivity',
     brandColor: '#D83B01',
     iconText: '田',
+    logo: '/logos/microsoft-seeklogo.svg',
     website: 'https://microsoft.com/microsoft-365',
     description: 'Word, Excel, PowerPoint, Outlook, and 1TB OneDrive cloud storage.',
     plans: [
@@ -655,6 +663,7 @@ export const PROVIDER_CATALOG = [
     category: 'Entertainment',
     brandColor: '#D30068',
     iconText: 'Jio',
+    logo: '/logos/jiohotstar-seeklogo.svg',
     website: 'https://jiocinema.com',
     description: 'Premium HBO, Peacock, Warner Bros movies, and ad-free streaming.',
     plans: [
@@ -693,6 +702,7 @@ export const PROVIDER_CATALOG = [
     category: 'Utilities & Telecom',
     brandColor: '#ED1C24',
     iconText: 'airtel',
+    logo: '/logos/airtel-xstream-seeklogo.svg',
     website: 'https://airtel.in/xstream',
     description: 'Aggregated streaming for 20+ OTT apps (SonyLIV, Zee5, Lionsgate, Fancode) in one app.',
     plans: [

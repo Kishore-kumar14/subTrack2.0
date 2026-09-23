@@ -194,7 +194,12 @@ export default function Navbar({ activePage, setActivePage, onOpenAddModal, onOp
             <button
               onClick={onOpenAddModal}
               className="btn btn-primary btn-sm"
-              style={{ fontWeight: 700 }}
+              style={{
+                fontWeight: 700,
+                boxShadow: (activePage === 'add-subscription' || activePage === 'select-plan')
+                  ? '0 0 18px var(--primary-glow), 0 2px 8px rgba(0,0,0,0.3)'
+                  : 'none'
+              }}
             >
               <Plus size={16} />
               <span>Add Subscription</span>

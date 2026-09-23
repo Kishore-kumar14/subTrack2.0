@@ -192,27 +192,97 @@ const BRAND_SVGS = {
   )
 };
 
+// Official SeekLogo SVGs from /public/logos/ directory
+const LOGO_FOLDER_MAP = {
+  netflix: {
+    src: '/logos/netflix-seeklogo.svg',
+    alt: 'Netflix',
+    bg: '#141414',
+    padRatio: 0.1,
+    fit: 'contain'
+  },
+  spotify: {
+    src: '/logos/spotify-seeklogo.svg',
+    alt: 'Spotify',
+    bg: '#121212',
+    padRatio: 0.07,
+    fit: 'contain'
+  },
+  'youtube-premium': {
+    src: '/logos/youtube-2017-icon-seeklogo-3.svg',
+    alt: 'YouTube Premium',
+    bg: '#0F0F0F',
+    padRatio: 0.07,
+    fit: 'contain'
+  },
+  'openai-chatgpt': {
+    src: '/logos/open-ai-seeklogo.svg',
+    alt: 'OpenAI ChatGPT',
+    bg: '#FFFFFF',
+    padRatio: 0.1,
+    fit: 'contain'
+  },
+  'amazon-prime': {
+    src: '/logos/amazon-prime-video-seeklogo.svg',
+    alt: 'Amazon Prime Video',
+    bg: '#FFFFFF',
+    padRatio: 0.04,
+    fit: 'contain'
+  },
+  jiohotstar: {
+    src: '/logos/jiohotstar-seeklogo.svg',
+    alt: 'JioHotstar',
+    bg: '#FFFFFF',
+    padRatio: 0.04,
+    fit: 'contain'
+  },
+  'github-copilot': {
+    src: '/logos/github-seeklogo.svg',
+    alt: 'GitHub Copilot',
+    bg: '#181717',
+    padRatio: 0.07,
+    fit: 'contain'
+  },
+  'microsoft-365': {
+    src: '/logos/microsoft-seeklogo.svg',
+    alt: 'Microsoft 365',
+    bg: '#FFFFFF',
+    padRatio: 0.07,
+    fit: 'contain'
+  },
+  'airtel-xstream': {
+    src: '/logos/airtel-xstream-seeklogo.svg',
+    alt: 'Airtel Xstream Play',
+    bg: '#FFFFFF',
+    padRatio: 0.04,
+    fit: 'contain'
+  }
+};
+
 // Provider to brand key mapping
 const getBrandKey = (sub) => {
   if (!sub) return null;
   const id = (sub.providerId || sub.id || '').toLowerCase();
   const name = (sub.name || '').toLowerCase();
 
+  // 1. Matches for official assets in /logos/ folder
   if (id.includes('netflix') || name.includes('netflix')) return 'netflix';
   if (id.includes('spotify') || name.includes('spotify')) return 'spotify';
   if (id.includes('youtube') || name.includes('youtube')) return 'youtube-premium';
   if (id.includes('chatgpt') || id.includes('openai') || name.includes('chatgpt') || name.includes('openai')) return 'openai-chatgpt';
   if (id.includes('prime') || name.includes('prime') || name.includes('amazon')) return 'amazon-prime';
-  if (id.includes('disney') || id.includes('hotstar') || name.includes('disney') || name.includes('hotstar')) return 'disney-hotstar';
+  if (id.includes('hotstar') || name.includes('hotstar') || id.includes('jiocinema') || name.includes('jiocinema') || id.includes('disney') || name.includes('disney') || id.includes('jiohotstar') || name.includes('jiohotstar')) return 'jiohotstar';
   if (id.includes('copilot') || id.includes('github') || name.includes('copilot') || name.includes('github')) return 'github-copilot';
+  if (id.includes('microsoft') || id.includes('ms-') || name.includes('microsoft') || name.includes('office')) return 'microsoft-365';
+  if (id.includes('airtel') || name.includes('airtel') || id.includes('xstream') || name.includes('xstream')) return 'airtel-xstream';
+  if (id.includes('jio') || name.includes('jio')) return 'jiohotstar';
+
+  // 2. Other provider keys with crisp inline SVGs
   if (id.includes('google') || name.includes('google')) return 'google-one';
   if (id.includes('apple') || name.includes('apple') || id.includes('icloud')) return 'apple-one';
-  if (id.includes('microsoft') || id.includes('ms-') || name.includes('microsoft') || name.includes('office')) return 'microsoft-365';
   if (id.includes('canva') || name.includes('canva')) return 'canva';
   if (id.includes('notion') || name.includes('notion')) return 'notion';
   if (id.includes('adobe') || name.includes('adobe') || name.includes('creative cloud')) return 'adobe';
-  if (id.includes('jio') || name.includes('jio')) return 'jio';
-  if (id.includes('airtel') || name.includes('airtel')) return 'airtel';
   if (id.includes('swiggy') || name.includes('swiggy')) return 'swiggy';
   if (id.includes('zomato') || name.includes('zomato')) return 'zomato';
   if (id.includes('playstation') || id.includes('ps-') || name.includes('playstation')) return 'playstation';
@@ -250,36 +320,102 @@ export default function SubscriptionIcon({
   style = {},
   className = ''
 }) {
+  const [folderImgError, setFolderImgError] = useState(false);
   const [imgError, setImgError] = useState(false);
 
   if (!subscription) return null;
 
   const brandKey = getBrandKey(subscription);
 
-  // 1. Direct SVG Vector Match (Instant, crisp, high fidelity)
-  if (brandKey && BRAND_SVGS[brandKey]) {
+  // 1. Direct match for official SVGs from /public/logos/
+  const folderLogo = LOGO_FOLDER_MAP[brandKey] || (
+    subscription.logo ? {
+      src: subscription.logo,
+      alt: subscription.name,
+      bg: subscription.brandColor || '#FFFFFF',
+      padRatio: 0.08,
+      fit: 'contain'
+    } : null
+  );
+
+  if (folderLogo && !folderImgError) {
+    const radius = Math.max(6, Math.round(size * 0.22));
+    const pad = Math.max(2, Math.round(size * (folderLogo.padRatio || 0.08)));
+    const contentSize = size - pad * 2;
+
     return (
       <div
         className={className}
         style={{
           width: `${size}px`,
           height: `${size}px`,
+          minWidth: `${size}px`,
+          minHeight: `${size}px`,
           flexShrink: 0,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          borderRadius: '10px',
+          borderRadius: `${radius}px`,
+          backgroundColor: folderLogo.bg || '#141414',
           overflow: 'hidden',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+          border: folderLogo.bg === '#FFFFFF' ? '1px solid rgba(0, 0, 0, 0.12)' : 'none',
+          padding: `${pad}px`,
+          boxSizing: 'border-box',
           ...style
         }}
+        title={subscription.name}
       >
-        {BRAND_SVGS[brandKey](size)}
+        <img
+          src={folderLogo.src}
+          alt={folderLogo.alt || subscription.name || 'Subscription Logo'}
+          style={{
+            width: '100%',
+            height: '100%',
+            maxWidth: `${contentSize}px`,
+            maxHeight: `${contentSize}px`,
+            objectFit: folderLogo.fit || 'contain',
+            display: 'block',
+            userSelect: 'none',
+            pointerEvents: 'none'
+          }}
+          onError={() => setFolderImgError(true)}
+        />
       </div>
     );
   }
 
-  // 2. Favicon API Fallback for custom subscriptions or non-standard providers
+  // 2. Direct SVG Vector Match (For all other platforms: Google, Apple, Canva, Notion, Adobe, etc.)
+  const fallbackSvg = BRAND_SVGS[brandKey] ||
+    (brandKey === 'jiohotstar' && (BRAND_SVGS['disney-hotstar'] || BRAND_SVGS['jio'])) ||
+    (brandKey === 'airtel-xstream' && BRAND_SVGS['airtel']);
+
+  if (fallbackSvg) {
+    return (
+      <div
+        className={className}
+        style={{
+          width: `${size}px`,
+          height: `${size}px`,
+          minWidth: `${size}px`,
+          minHeight: `${size}px`,
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: `${Math.max(6, Math.round(size * 0.22))}px`,
+          overflow: 'hidden',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+          boxSizing: 'border-box',
+          ...style
+        }}
+      >
+        {fallbackSvg(size)}
+      </div>
+    );
+  }
+
+  // 3. Favicon API Fallback for custom subscriptions or non-standard providers
   const domain = getDomain(subscription);
   if (domain && !imgError) {
     const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;

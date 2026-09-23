@@ -23,7 +23,8 @@ export function AuthProvider({ children }) {
   });
 
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return localStorage.getItem('subtrack_auth') === 'true';
+    const saved = localStorage.getItem('subtrack_auth');
+    return saved !== null ? saved === 'true' : true;
   });
 
 

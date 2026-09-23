@@ -45,6 +45,7 @@ export default function AddSubscriptionModal({ isOpen, onClose, editingSubscript
   useEffect(() => {
     if (editingSubscription) {
       setFormData({
+        providerId: editingSubscription.providerId || '',
         name: editingSubscription.name || '',
         planName: editingSubscription.planName || '',
         category: editingSubscription.category || 'Entertainment',
@@ -58,11 +59,13 @@ export default function AddSubscriptionModal({ isOpen, onClose, editingSubscript
         usageFrequency: editingSubscription.usageFrequency || 'daily',
         brandColor: editingSubscription.brandColor || '#6366f1',
         iconText: editingSubscription.iconText || 'S',
+        logo: editingSubscription.logo || null,
         notes: editingSubscription.notes || ''
       });
       setActiveTab('custom');
     } else {
       setFormData({
+        providerId: '',
         name: '',
         planName: '',
         category: 'Entertainment',
@@ -76,12 +79,12 @@ export default function AddSubscriptionModal({ isOpen, onClose, editingSubscript
         usageFrequency: 'daily',
         brandColor: '#6366f1',
         iconText: '★',
+        logo: null,
         notes: ''
       });
       setActiveTab('popular');
     }
   }, [editingSubscription, isOpen]);
-
 
   // When user clicks a recharge plan from the 20+ catalog
   const handleSelectProviderPlan = (provider, plan) => {
@@ -89,6 +92,7 @@ export default function AddSubscriptionModal({ isOpen, onClose, editingSubscript
     const selectedCost = currency === 'USD' ? plan.costUSD : plan.costINR;
 
     setFormData({
+      providerId: provider.id,
       name: provider.name,
       planName: plan.name,
       category: provider.category,
@@ -101,6 +105,7 @@ export default function AddSubscriptionModal({ isOpen, onClose, editingSubscript
       reminderDays: 3,
       brandColor: provider.brandColor,
       iconText: provider.iconText,
+      logo: provider.logo || null,
       notes: `${plan.name} (${plan.features.slice(0, 2).join(', ')})`
     });
 

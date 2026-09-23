@@ -14,32 +14,50 @@ import SubscriptionsPage from './pages/SubscriptionsPage';
 import CalendarPage from './pages/CalendarPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import ProfilePage from './pages/ProfilePage';
+import AddSubscriptionPage from './pages/AddSubscriptionPage';
+import ServicePlansPage from './pages/ServicePlansPage';
 
 import { Home, LayoutDashboard, Calendar, PieChart, CreditCard, User, Plus } from 'lucide-react';
 
 function SubTrackMain() {
   const { isAuthenticated } = useAuth();
 
-  const getPageFromHash = () => {
+  const getPageInfoFromHash = () => {
     const hash = window.location.hash.replace(/^#\/?/, '').trim();
-    const validPages = ['home', 'login', 'signup', 'dashboard', 'subscriptions', 'calendar', 'analytics', 'profile'];
-    return validPages.includes(hash) ? hash : 'home';
+    const [pagePart, queryPart] = hash.split('?');
+    const params = new URLSearchParams(queryPart || '');
+    const validPages = [
+      'home', 'login', 'signup', 'dashboard', 'subscriptions',
+      'calendar', 'analytics', 'profile', 'add-subscription', 'select-plan'
+    ];
+    const page = validPages.includes(pagePart) ? pagePart : 'home';
+    const serviceId = params.get('service') || null;
+    return { page, serviceId };
   };
 
-  const [activePage, setActivePage] = useState(getPageFromHash);
+  const initialInfo = getPageInfoFromHash();
+  const [activePage, setActivePage] = useState(initialInfo.page);
+  const [selectedProviderId, setSelectedProviderId] = useState(initialInfo.serviceId);
+  const [selectedProvider, setSelectedProvider] = useState(null);
 
   // Navigate helper that synchronizes URL hash and scrolls to top
-  const navigateTo = (page) => {
-    setActivePage(page);
-    window.location.hash = page;
+  const navigateTo = (target) => {
+    const [pagePart, queryPart] = target.split('?');
+    const params = new URLSearchParams(queryPart || '');
+    const serviceId = params.get('service') || null;
+
+    setActivePage(pagePart);
+    setSelectedProviderId(serviceId);
+    window.location.hash = target;
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   // Listen to browser forward/back buttons and hash changes
   useEffect(() => {
     const handleHashChange = () => {
-      const page = getPageFromHash();
-      setActivePage(page);
+      const info = getPageInfoFromHash();
+      setActivePage(info.page);
+      setSelectedProviderId(info.serviceId);
       window.scrollTo({ top: 0, behavior: 'instant' });
     };
     window.addEventListener('hashchange', handleHashChange);
@@ -51,9 +69,9 @@ function SubTrackMain() {
   const [editingSubscription, setEditingSubscription] = useState(null);
   const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = useState(false);
 
+  // When user clicks Add Subscription, navigate to dedicated Add Subscription page
   const handleOpenAddModal = () => {
-    setEditingSubscription(null);
-    setIsAddModalOpen(true);
+    navigateTo('add-subscription');
   };
 
   const handleEditSubscription = (sub) => {
@@ -137,6 +155,37 @@ function SubTrackMain() {
         {activePage === 'profile' && (
           isAuthenticated ? (
             <ProfilePage />
+          ) : (
+            <LoginPage onNavigate={navigateTo} />
+          )
+        )}
+
+        {activePage === 'add-subscription' && (
+          isAuthenticated ? (
+            <AddSubscriptionPage
+              onSelectProvider={(provider) => {
+                setSelectedProvider(provider);
+                navigateTo(`select-plan?service=${provider.id}`);
+              }}
+              onCustomSubscription={() => {
+                setSelectedProvider(null);
+                navigateTo('select-plan?service=custom');
+              }}
+              onBack={() => navigateTo('subscriptions')}
+            />
+          ) : (
+            <LoginPage onNavigate={navigateTo} />
+          )
+        )}
+
+        {activePage === 'select-plan' && (
+          isAuthenticated ? (
+            <ServicePlansPage
+              provider={selectedProvider}
+              providerId={selectedProviderId}
+              onBack={() => navigateTo('add-subscription')}
+              onSuccess={() => navigateTo('subscriptions')}
+            />
           ) : (
             <LoginPage onNavigate={navigateTo} />
           )

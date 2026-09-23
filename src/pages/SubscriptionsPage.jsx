@@ -12,7 +12,8 @@ import {
   ArrowUpDown,
   X,
   Sparkles,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Plus
 } from 'lucide-react';
 
 export default function SubscriptionsPage({ onOpenAddModal, onEditSubscription }) {
@@ -104,6 +105,16 @@ export default function SubscriptionsPage({ onOpenAddModal, onEditSubscription }
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          {/* Direct Add Subscription CTA */}
+          <button
+            onClick={onOpenAddModal}
+            className="btn btn-primary btn-sm"
+            style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.45rem 0.95rem' }}
+          >
+            <Plus size={16} />
+            <span>Add Subscription</span>
+          </button>
+
           {/* View Mode Toggle */}
           <div style={{ display: 'flex', background: 'var(--bg-input)', padding: '0.25rem', borderRadius: 'var(--radius-md)' }}>
             <button
@@ -310,7 +321,15 @@ export default function SubscriptionsPage({ onOpenAddModal, onEditSubscription }
           <p style={{ color: 'var(--text-secondary)', maxWidth: '400px', margin: '0 auto 1.5rem auto', fontSize: '0.875rem' }}>
             Try broadening your search or resetting active filters.
           </p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <button
+              onClick={onOpenAddModal}
+              className="btn btn-primary"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700 }}
+            >
+              <Plus size={16} />
+              <span>Add Subscription</span>
+            </button>
             {hasActiveFilters && (
               <button onClick={handleResetFilters} className="btn btn-secondary">
                 Reset Filters
