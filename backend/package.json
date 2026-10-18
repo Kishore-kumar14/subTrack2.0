@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
+    "build": "echo 'Backend ready'",
     "dev": "node --watch index.js",
     "server": "node index.js",
     "test": "node --test tests/catalog.test.js tests/calendarSync.test.js"
