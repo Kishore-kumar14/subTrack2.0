@@ -1,0 +1,918 @@
+/* ==========================================================================
+   SUBTRACK - SUBSCRIPTION RENEWAL TIMELINE (GANTT STYLE)
+   High-contrast, responsive, glassmorphic timeline chart
+   ========================================================================== */
+
+.renewal-timeline-card {
+  border-radius: var(--radius-xl);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-medium);
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Header & Controls */
+.timeline-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.timeline-title-area h2 {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 0.35rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.timeline-title-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-full);
+  background: rgba(37, 99, 235, 0.15);
+  color: var(--primary-light);
+  border: 1px solid rgba(37, 99, 235, 0.3);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.timeline-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 680px;
+  line-height: 1.45;
+}
+
+.timeline-controls-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* Range Selector Segmented Switch */
+.timeline-range-switch {
+  display: flex;
+  align-items: center;
+  background: var(--bg-badge);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  padding: 3px;
+  gap: 2px;
+}
+
+.range-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.4rem 0.75rem;
+  border-radius: calc(var(--radius-md) - 3px);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.range-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.range-btn.active {
+  background: var(--primary);
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 2px 8px var(--primary-glow);
+}
+
+/* Navigation Pager */
+.timeline-nav-pager {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.pager-btn {
+  background: var(--bg-badge);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.pager-btn:hover:not(:disabled) {
+  background: var(--bg-card-hover);
+  border-color: var(--border-medium);
+}
+
+.pager-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.today-jump-btn {
+  background: var(--bg-badge);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-size: 0.775rem;
+  font-weight: 600;
+  height: 32px;
+  padding: 0 0.75rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all var(--transition-fast);
+}
+
+.today-jump-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--primary-light);
+  color: var(--primary-light);
+}
+
+/* Overlapping Renewals Alert Strip */
+.timeline-overlap-banner {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(15, 23, 42, 0.6) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.timeline-overlap-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.timeline-overlap-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.timeline-overlap-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.overlap-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius-sm);
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  font-size: 0.775rem;
+}
+
+.overlap-date {
+  font-weight: 700;
+  color: var(--accent-amber);
+}
+
+.overlap-services {
+  color: var(--text-primary);
+}
+
+.overlap-total {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.25);
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--radius-xs);
+}
+
+/* Legend Area */
+.timeline-legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  padding: 0.65rem 1rem;
+  background: var(--bg-badge);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  font-size: 0.775rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--text-secondary);
+}
+
+.legend-bar-swatch {
+  width: 22px;
+  height: 8px;
+  border-radius: 4px;
+}
+
+.legend-bar-verified {
+  background: linear-gradient(90deg, #3b82f6, #10b981);
+}
+
+.legend-bar-estimated {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(59, 130, 246, 0.4),
+    rgba(59, 130, 246, 0.4) 4px,
+    rgba(59, 130, 246, 0.15) 4px,
+    rgba(59, 130, 246, 0.15) 8px
+  );
+  border: 1px dashed rgba(59, 130, 246, 0.6);
+}
+
+.legend-marker-pin {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+}
+
+.legend-marker-approaching {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 6px #f59e0b;
+}
+
+.legend-marker-overdue {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #f43f5e;
+  box-shadow: 0 0 6px #f43f5e;
+}
+
+.legend-today-line {
+  width: 3px;
+  height: 14px;
+  background: var(--primary-light);
+  border-radius: 2px;
+  box-shadow: 0 0 6px var(--primary-glow);
+}
+
+/* Main Timeline Grid Container */
+.timeline-viewport {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  position: relative;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Custom Scrollbar */
+.timeline-viewport::-webkit-scrollbar {
+  height: 8px;
+}
+
+.timeline-viewport::-webkit-scrollbar-track {
+  background: var(--bg-badge);
+  border-radius: 4px;
+}
+
+.timeline-viewport::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 4px;
+}
+
+.timeline-viewport::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
+}
+
+.timeline-canvas {
+  min-width: 820px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Timeline Header Row (Date Axis) */
+.timeline-axis-row {
+  display: flex;
+  border-bottom: 2px solid var(--border-medium);
+  background: var(--bg-card);
+  position: sticky;
+  top: 0;
+  z-index: 25;
+}
+
+.timeline-label-col-header {
+  width: 280px;
+  min-width: 280px;
+  padding: 0.85rem 1rem;
+  font-size: 0.775rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-right: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  position: sticky;
+  left: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.timeline-axis-track {
+  flex: 1;
+  position: relative;
+  height: 48px;
+  display: flex;
+}
+
+.axis-day-cell {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: translateX(-50%);
+  user-select: none;
+}
+
+.axis-day-name {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.axis-day-num {
+  font-size: 0.775rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+.axis-day-cell.is-today .axis-day-num {
+  color: var(--primary-light);
+  font-weight: 800;
+}
+
+.axis-day-cell.is-overlap .axis-overlap-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-amber);
+  margin-top: 2px;
+  box-shadow: 0 0 6px var(--accent-amber);
+}
+
+/* Timeline Content Rows */
+.timeline-rows-container {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.timeline-row {
+  display: flex;
+  border-bottom: 1px solid var(--border-subtle);
+  min-height: 64px;
+  position: relative;
+  transition: background var(--transition-fast);
+  cursor: pointer;
+}
+
+.timeline-row:hover {
+  background: rgba(37, 99, 235, 0.04);
+}
+
+.timeline-row.is-overdue {
+  background: rgba(244, 63, 94, 0.02);
+}
+
+/* Sticky Left Subscription Info Cell */
+.timeline-sub-cell {
+  width: 280px;
+  min-width: 280px;
+  padding: 0.65rem 1rem;
+  border-right: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  position: sticky;
+  left: 0;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.08);
+}
+
+.timeline-row:hover .timeline-sub-cell {
+  background: var(--bg-card-hover);
+}
+
+.sub-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  overflow: hidden;
+}
+
+.sub-name-block {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sub-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sub-details {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.sub-cycle-badge {
+  text-transform: capitalize;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.sub-cost-block {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.sub-cost {
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+.sub-status-pill {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-xs);
+  display: inline-block;
+}
+
+.status-active {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-emerald);
+}
+
+.status-approaching {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent-amber);
+}
+
+.status-overdue {
+  background: rgba(244, 63, 94, 0.15);
+  color: var(--accent-rose);
+}
+
+.status-trial {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent-amber);
+}
+
+.status-cancelled, .status-paused, .status-no_date {
+  background: rgba(148, 163, 184, 0.15);
+  color: var(--text-muted);
+}
+
+/* Timeline Track (Gantt Bar Area) */
+.timeline-track {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  overflow: visible;
+}
+
+/* Grid Column Lines */
+.grid-day-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border-subtle);
+  pointer-events: none;
+}
+
+.grid-day-line.is-weekend {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Vertical "Today" Line Marker */
+.timeline-today-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--primary-light);
+  box-shadow: 0 0 10px var(--primary-glow);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.today-header-tag {
+  position: absolute;
+  top: 2px;
+  transform: translateX(-50%);
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--radius-xs);
+  box-shadow: 0 2px 6px var(--primary-glow);
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Horizontal Billing Period Bar */
+.timeline-period-bar {
+  position: absolute;
+  height: 22px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  transition: all var(--transition-fast);
+  z-index: 5;
+  box-shadow: var(--shadow-sm);
+  outline: none;
+}
+
+.timeline-period-bar:focus-visible {
+  box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+.timeline-period-bar.is-verified {
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0.45) 0%, rgba(16, 185, 129, 0.55) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.timeline-period-bar.is-estimated {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(37, 99, 235, 0.25),
+    rgba(37, 99, 235, 0.25) 6px,
+    rgba(37, 99, 235, 0.1) 6px,
+    rgba(37, 99, 235, 0.1) 12px
+  );
+  border: 1px dashed rgba(59, 130, 246, 0.5);
+}
+
+.timeline-period-bar.is-approaching {
+  border-color: rgba(245, 158, 11, 0.6);
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0.35) 0%, rgba(245, 158, 11, 0.5) 100%);
+}
+
+.timeline-period-bar.is-overdue {
+  border-color: rgba(244, 63, 94, 0.7);
+  background: linear-gradient(90deg, rgba(244, 63, 94, 0.2) 0%, rgba(244, 63, 94, 0.6) 100%);
+}
+
+.timeline-period-bar.is-cancelled,
+.timeline-period-bar.is-paused {
+  background: rgba(100, 116, 139, 0.2);
+  border: 1px solid rgba(100, 116, 139, 0.4);
+}
+
+/* Distinct Renewal Milestone Marker Pin */
+.timeline-renewal-pin {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  border: 3px solid var(--accent-emerald);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 8;
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.timeline-renewal-pin:hover {
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
+.timeline-renewal-pin.is-approaching {
+  border-color: var(--accent-amber);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.7);
+  animation: pulsePin 1.8s infinite;
+}
+
+.timeline-renewal-pin.is-overdue {
+  border-color: var(--accent-rose);
+  box-shadow: 0 0 12px rgba(244, 63, 94, 0.8);
+}
+
+.pin-center-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+/* Amount Label beside Renewal Marker */
+.timeline-cost-badge {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
+  padding: 0.12rem 0.45rem;
+  border-radius: var(--radius-xs);
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Missing Date Placeholder in Track */
+.timeline-no-date-notice {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+  padding-left: 1rem;
+}
+
+/* Overdue Flag Indicator on Left of Track */
+.timeline-overdue-flag {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(244, 63, 94, 0.15);
+  color: var(--accent-rose);
+  border: 1px solid rgba(244, 63, 94, 0.4);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  z-index: 6;
+}
+
+/* Interactive Floating Tooltip */
+.timeline-tooltip {
+  position: fixed;
+  z-index: 1000;
+  pointer-events: none;
+  width: 290px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-glow);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  box-shadow: var(--shadow-xl), 0 0 20px rgba(37, 99, 235, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  animation: fadeInTooltip 0.15s ease-out;
+}
+
+.tooltip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tooltip-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow: hidden;
+}
+
+.tooltip-title {
+  font-size: 0.925rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.tooltip-category {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.tooltip-amount-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 0.5rem;
+}
+
+.tooltip-amount {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+}
+
+.tooltip-cycle {
+  font-size: 0.775rem;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
+.tooltip-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  font-size: 0.725rem;
+}
+
+.tooltip-cell-label {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+
+.tooltip-cell-val {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.tooltip-verified-badge {
+  font-size: 0.68rem;
+  padding: 0.2rem 0.45rem;
+  border-radius: var(--radius-xs);
+  background: var(--bg-badge);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+
+.tooltip-action-hint {
+  font-size: 0.7rem;
+  color: var(--primary-light);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 600;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 0.4rem;
+}
+
+/* Empty State */
+.timeline-empty-state {
+  text-align: center;
+  padding: 3.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.empty-state-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(37, 99, 235, 0.12);
+  color: var(--primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.empty-state-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  max-width: 440px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Animations */
+@keyframes pulsePin {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.18);
+    box-shadow: 0 0 16px rgba(245, 158, 11, 0.9);
+  }
+}
+
+@keyframes fadeInTooltip {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .renewal-timeline-card {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .timeline-label-col-header,
+  .timeline-sub-cell {
+    width: 220px;
+    min-width: 220px;
+    padding: 0.6rem 0.75rem;
+  }
+
+  .sub-name {
+    font-size: 0.8rem;
+  }
+
+  .sub-cost {
+    font-size: 0.8rem;
+  }
+
+  .timeline-controls-bar {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .timeline-range-switch {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .range-btn {
+    flex: 1;
+    text-align: center;
+    padding: 0.4rem 0.2rem;
+  }
+}

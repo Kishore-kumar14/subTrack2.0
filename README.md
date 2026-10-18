@@ -1,137 +1,102 @@
 <div align="center">
-  <img src="public/logo.svg" alt="SubTrack Logo" width="100" height="100" />
+  <img src="frontend/public/logo.svg" alt="SubTrack Logo" width="100" height="100" />
   <h1>SubTrack</h1>
   <p><strong>Centralized Subscription & Expense Intelligence Platform</strong></p>
-  <p>Track recurring expenses, visualize financial analytics, prevent surprise renewals, and stay in total control of your digital services.</p>
+  <p>Track recurring expenses, visualize financial analytics, prevent surprise renewals, sync with Google Calendar, and stay in total control of your digital services.</p>
 
   [![React](https://img.shields.io/badge/React-18.3.1-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+  [![Express](https://img.shields.io/badge/Express-5.2-000000?logo=express&logoColor=white)](https://expressjs.com/)
+  [![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
   [![Vite](https://img.shields.io/badge/Vite-5.4.21-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
   [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-  [![Build](https://img.shields.io/badge/Build-Passing-2563EB)](https://github.com/Kishore-kumar14/subTrack.git)
 </div>
 
 ---
 
 ## 📖 Overview
 
-**SubTrack** is a modern, responsive web application engineered to solve "subscription fatigue" and eliminate surprise recurring charges. Modern households and professionals juggle dozens of digital subscriptions—from streaming and music to productivity tools, AI services, cloud storage, fitness memberships, and telecom recharges. 
+**SubTrack** is a modern, responsive full-stack application engineered to solve "subscription fatigue" and eliminate surprise recurring charges.
 
-SubTrack consolidates all recurring commitments into a single, intuitive interface with real-time financial pacing, urgent renewal notices, interactive calendar forecasts, and comprehensive printable reports.
-
----
-
-## ✨ Key Features & Architectural Enhancements
-
-### 1. 💳 Taskbar-Centric Subscription Management
-- **Universal Taskbar CTA**: The **"+ Add Subscription"** action is stationed prominently in the primary desktop taskbar and mobile navigation bar, keeping data entry accessible from any screen.
-- **Decluttered Page Interfaces**: Removed redundant in-page add buttons from the Dashboard and Subscriptions views to ensure a distraction-free analytics and auditing experience.
-
-### 2. 🎨 Authentic Brand Vector Engine (`SubscriptionIcon.jsx`)
-- **Genuine Vector SVGs**: Handcrafted, scalable SVGs for **22+ top platforms**:
-  - *Streaming & Media*: Netflix, Spotify, YouTube Premium, Amazon Prime, Disney+ Hotstar, JioCinema, Airtel Xstream, SonyLIV.
-  - *AI & Development*: OpenAI ChatGPT, Anthropic Claude AI, GitHub Copilot.
-  - *Productivity & Cloud*: Google One, Apple One / Music, Microsoft 365, Canva, Notion, Adobe Creative Cloud, Dropbox, LinkedIn Premium.
-  - *Lifestyle & Fitness*: Cult.fit, Audible, Swiggy, Zomato, PlayStation Plus, Xbox Game Pass.
-- **Smart Fallback Chain**: Subscriptions outside the built-in catalogue seamlessly query high-resolution domain favicons via Google Favicon API, backed by brand-colored monogram tokens.
-- **Consistent Visual Hierarchy**: All service icons are rendered with standardized 10px rounded corners, crisp aspect ratios, and soft elevation shadows.
-
-### 3. 🎯 Real-World Metaphor Iconography
-Every tool, view, and metric uses intuitive physical real-world metaphors:
-- **Subscriptions**: `CreditCard` (physical plastic payment card)
-- **Total Monthly Outflow**: `Wallet` (physical pocket cash wallet)
-- **Schedule**: `Calendar` (desk/wall flip calendar)
-- **Financial Analytics**: `PieChart` / `BarChart` (printed financial ledger & charts)
-- **Dashboard**: `LayoutDashboard` (physical instrument control panel)
-- **Renewal Due Dates**: `Clock` (physical timepiece)
-- **Urgent Alerts**: `Bell` (service brass bell)
-- **Search & Filters**: `Search` (magnifying glass) & `Filter` (funnel)
-- **Appearance**: `Sun` / `Moon` (celestial lighting)
-
-### 4. 🔵 Unified Brand Theme Matching SVG Logo
-- **Scalable Vector Logo (`public/logo.svg`)**: Clean SVG artwork featuring a rounded calendar clipboard with binder rings, status dot indicators, and an overlapping royal blue circular badge with the Indian Rupee symbol (`₹`).
-- **Single Signature Blue**: Application palette harmonized to the logo’s royal blue:
-  - **Primary**: `#2563EB` | **Light**: `#60A5FA` | **Dark**: `#1D4ED8`
-  - **Gradients**: Smooth single-hue blue linear gradient (`linear-gradient(135deg, #3B82F6 0%, #2563EB 50%, #1D4ED8 100%)`).
-  - Cohesive active navigation pills, buttons, glow halos, badges, and focus rings.
-
-### 5. 💰 Currency Intelligence (INR ₹ Default & USD $ Option)
-- **Default Currency**: Set to Indian Rupees (`₹` INR) across user registration, seed profiles, and system defaults.
-- **Secondary Currency**: Full support for US Dollars (`$` USD) toggleable from the navigation bar or profile settings with automatic live recalculations across all views.
-- **Simplified Structure**: Pruned outdated Euro, British Pound, and Japanese Yen settings for maximum consistency.
-
-### 6. 🔒 Enterprise-Grade Password Validation
-Registration includes interactive client-side password security checking against four standard criteria:
-- Minimum 8 characters
-- At least 1 number (`0–9`)
-- At least 1 special symbol (`!@#$%^&*...`)
-- At least 1 uppercase letter (`A–Z`)
-- **Real-Time Feedback**: Live checklist ticks, dynamic color-coded strength bar (Red $\rightarrow$ Amber $\rightarrow$ Green), show/hide visibility toggle, and form validation gate.
-
-### 7. 📊 Spending Analytics & Printable Financial Report
-- **Category Outflow Doughnut Chart**: Interactive Recharts breakdown displaying cost per sector and percentage distribution.
-- **30-Day Cash Outflow Forecast**: Chronological timeline highlighting bills due within $\le 7$ days in bold warning badges.
-- **Printable Financial Report (`#subtrack-print-report`)**:
-  - Executive financial summary (Active Services, Monthly Outflow, Projected Annual Outflow).
-  - **Active Subscriptions Table**: Number, Name / Plan, Category, Start Date, Renewal Date, Price, Payment Method.
-  - **Category-Wise Spending Table**: Breakdown of active counts, monthly burn, annual projection, and percentage of budget.
-  - Dedicated `@media print` rules for paper and PDF export, automatically suppressing headers, taskbars, and web navigation.
-
-### 8. ☀️ Day & Night Visual Contrast
-- Refined typography tokens in light mode (`--text-secondary: #334155`, `--border-medium: rgba(0, 0, 0, 0.2)`).
-- Action Center renewal banners, stat cards, and secondary button hover states remain legible under bright sunlight or dark rooms.
+SubTrack consolidates all recurring commitments into a single interface with real-time financial pacing, urgent renewal notices, automated Google Calendar synchronization with mobile push alerts, signup email confirmations, and strictly isolated per-user subscription management.
 
 ---
 
-## 🛠️ Technology Stack
+## ✨ Key Features & Capabilities
 
-| Layer | Technology | Purpose |
-| :--- | :--- | :--- |
-| **Runtime & UI** | [React 18](https://react.dev/) | Component architecture, state management & hooks |
-| **Build Tool** | [Vite 5](https://vitejs.dev/) | Fast HMR, Rollup production bundling |
-| **Visualizations** | [Recharts](https://recharts.org/) | Responsive SVG charts (Doughnut, Bar Forecasts) |
-| **Icons** | [Lucide React](https://lucide.dev/) | Clean, consistent real-world metaphor icons |
-| **Effects** | [Canvas Confetti](https://www.npmjs.com/package/canvas-confetti) | Micro-interactions upon subscription renewal |
-| **Styling** | Vanilla CSS + CSS Variables | Glassmorphism, tailored tokens, print stylesheets |
-| **Typography** | Plus Jakarta Sans & Inter | Modern font hierarchy loaded via Google Fonts |
+### 1. 🔑 Google Authentication & Email Sign-In
+- **Google Sign-In**: Authenticate using official Google Identity Services (`@react-oauth/google`) or connect your Google profile directly.
+- **Robust Fallbacks**: Seamless fallback ensures you can sign in and link your Google profile even when Google Cloud Client ID is in development mode.
+- **Zero Demo Pollution**: Real user authentication with dedicated accounts and credentials.
+
+### 2. 📧 Automated Signup Confirmation Emails
+- **Email Service (`nodemailer`)**: Automatically dispatches a branded welcome & confirmation email upon user registration or new Google signup.
+- **Rich HTML Notifications**: Contains account details, security reminders, and quick-start guides to setting up Google Calendar renewals.
+- **Flexible SMTP Configuration**: Ready for Gmail, Outlook, or custom SMTP servers (with automatic test inbox fallback in development).
+
+### 3. 📅 Google Calendar Synchronization & Real-Time Management
+- **Automatic 2-Way Sync (Direct Google Calendar API v3)**: Connected Google Calendars update in real time. Creating, editing, renewing, or cancelling a subscription automatically creates, updates (PATCH), or removes its Google Calendar event with zero manual action required.
+- **Durable Event Mapping & Deduplication**: Each subscription maintains a persistent `googleCalendarEventId` mapping and private extended properties (`subtrackSubscriptionId`, `subtrackUserId`). Repeated sync calls update mapped events instead of creating duplicates.
+- **Automatic Duplicate Reconciliation**: The reconciliation engine identifies and deletes redundant duplicates in Google Calendar while preserving unrelated personal calendar events.
+- **3-Day and 1-Day Popup Reminders**: Configured with explicit pop-up alarm offsets (4320 mins and 1440 mins before renewal).
+- **Four Clear Calendar Modes**:
+  1. *Direct Google Calendar API*: Instant 2-way automatic CRUD synchronization.
+  2. *1-Click Web Sync Link*: Browser template generator for individual subscription events.
+  3. *Live iCalendar Feed URL (`/api/calendar/:userId/feed.ics`)*: Standard webcal feed polled periodically (every 6–24 hours) by calendar applications.
+  4. *Download .ICS File*: Offline static calendar snapshot for manual import.
+
+### 4. 🛡️ Strict Per-User Data Isolation
+- **User Scoping**: Every subscription is strictly bound to the authenticated `userId`.
+- **Database & Cache Separation**: The backend API filters, updates, and deletes records solely for the requesting user (`/api/subscriptions?userId=...`).
+- **Private Browser Caching**: Local storage keys are namespaced per user (`subtrack_subscriptions_<userId>`), ensuring no data leakage between different user accounts.
+
+### 5. 💳 Taskbar-Centric Subscription Management
+- **Universal Taskbar CTA**: The **"+ Add Subscription"** action is stationed prominently in the primary desktop taskbar and mobile navigation bar.
+- **Brand Vector Engine**: High-resolution vector icons for 22+ top platforms (Netflix, Spotify, ChatGPT, Claude, Hotstar, JioCinema, Prime, etc.) with automatic Google Favicon fallback.
+
+### 6. 💰 Currency Intelligence (INR ₹ Default & USD $ Option)
+- **Primary Currency**: Default set to Indian Rupees (`₹` INR) with support for US Dollars (`$` USD).
+- **Dynamic Conversion**: Live recalculations across charts, calendars, tables, and dashboard stat cards.
+
+### 7. 📊 Spending Analytics & Printable Financial Reports
+- **Outflow Doughnut Chart**: Interactive sector cost and percentage distributions.
+- **30-Day Cash Flow Forecast**: Chronological timeline highlighting bills due within $\le 7$ days.
+- **Printable Financial Report**: Formatted tables and executive summaries with `@media print` styling for clean paper and PDF output.
+
+### 8. ⏳ Interactive Gantt-Style Subscription Renewal Timeline
+- **Multi-Range Gantt Chart**: Horizontal calendar views across **Next 7 Days**, **Next 30 Days**, and **Next 90 Days** with backward/forward navigation and a quick "Reset to Today" button.
+- **Billing Period Representation**: Visual bars spanning subscription billing cycles that clearly distinguish verified billing periods (solid) from cycle-estimated periods (dashed/striped).
+- **Overlapping Renewal Detection**: Automatic detection and highlighting of dates with multiple renewals, complete with combined financial impact grouped by currency (INR & USD).
+- **Milestone Pins & Micro-Status**: Animated markers indicating upcoming renewals, urgency badges for renewals due soon ($\le 3$ days), overdue flags, and trial expiration warnings.
+- **Rich Hover Tooltips & Fast Editing**: Interactive glassmorphic tooltips displaying service details, amounts, frequencies, and direct click-to-edit integration with existing subscription modals.
+- **Dual Dashboard & Dedicated Page Access**: Seamlessly accessible directly on the primary Dashboard and as a dedicated full-page view via the top and mobile navigation bars.
 
 ---
 
-## 📁 Project Architecture
+## 🏗️ Project Architecture
 
 ```
 SubTrack/
-├── public/
-│   ├── logo.svg              # Scalable vector brand logo (Rupee + Calendar)
-│   ├── logo.png              # High-res raster fallback
-│   └── vite.svg
-├── src/
-│   ├── components/
-│   │   ├── calendar/         # CalendarGrid, DayDetailModal
-│   │   ├── common/           # Logo, StatCard, Badge, Modal, SubscriptionIcon
-│   │   ├── layout/           # Navbar, NotificationDrawer
-│   │   └── subscriptions/    # SubscriptionCard, SubscriptionTable,
-│   │                         # AddSubscriptionModal, RechargePlanPicker
-│   ├── context/
-│   │   ├── AuthContext.jsx   # Authentication, profile & currency state (INR/USD)
-│   │   └── SubscriptionContext.jsx # CRUD state, filters, renew & trial alerts
-│   ├── data/
-│   │   ├── providerCatalog.js# 20+ services with pre-configured recharge plans
-│   │   └── seedData.js       # Realistic initial subscriptions and demo user
-│   ├── pages/
-│   │   ├── HomePage.jsx      # Clean landing page
-│   │   ├── LoginPage.jsx     # 1-Click demo login & sign in
-│   │   ├── SignUpPage.jsx    # Registration with 4-condition password validation
-│   │   ├── DashboardPage.jsx # Executive financial overview & Action Center
-│   │   ├── SubscriptionsPage.jsx # Search, filter, grid/table view of active plans
-│   │   ├── CalendarPage.jsx  # Monthly renewal calendar
-│   │   ├── AnalyticsPage.jsx # Category breakdowns, cash outflow & print tables
-│   │   └── ProfilePage.jsx   # Budget management & currency switcher
-│   ├── App.jsx               # Main router, mobile navigation taskbar, layout shell
-│   ├── index.css             # Unified Royal Blue design system & print styles
-│   └── main.jsx              # React DOM entry point
-├── index.html                # HTML5 entry with logo.svg favicon
-├── package.json              # Project dependencies and npm scripts
-└── vite.config.js            # Vite configuration & plugins
+├── backend/                  # Express 5 REST API & MongoDB
+│   ├── config/               # Database connection (db.js)
+│   ├── models/               # User.js, Subscription.js
+│   ├── routes/               # authRoutes.js, subscriptionRoutes.js, calendarRoutes.js
+│   ├── services/             # emailService.js (Nodemailer confirmation emails)
+│   ├── .env.example          # Backend environment variables template
+│   ├── index.js              # Express server entry point (Port 5000)
+│   └── package.json
+├── frontend/                 # React 18 + Vite frontend application
+│   ├── public/               # Static assets & SVG brand logos
+│   ├── src/
+│   │   ├── components/       # Calendar, layout, common UI, subscriptions
+│   │   ├── context/          # AuthContext.jsx, SubscriptionContext.jsx
+│   │   ├── services/         # api.js (Express & MongoDB integration)
+│   │   ├── pages/            # Dashboard, Subscriptions, Calendar, Analytics, Profile, Auth
+│   │   └── App.jsx
+│   ├── .env.example          # Frontend environment variables template
+│   ├── vite.config.js        # API proxy configured to forward `/api` to port 5000
+│   └── package.json
+├── package.json              # Root orchestration scripts
+└── README.md
 ```
 
 ---
@@ -139,32 +104,47 @@ SubTrack/
 ## 🚀 Getting Started
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (version 18.0.0 or higher recommended)
-- [npm](https://www.npmjs.com/) (version 9.0.0 or higher)
+- [Node.js](https://nodejs.org/) (v18.0.0 or higher recommended)
+- [npm](https://www.npmjs.com/) (v9.0.0 or higher)
+- [MongoDB](https://www.mongodb.com/) (Local MongoDB or MongoDB Atlas URI)
 
-### Installation & Local Setup
+### Quick Start (Frontend & Backend Concurrently)
 
-1. **Navigate to the workspace**:
+1. **Install all dependencies**:
    ```bash
-   cd d:\SubTrack
+   npm run install:all
    ```
 
-2. **Install project dependencies**:
-   ```bash
-   npm install
-   ```
+2. **Configure Environment Variables**:
+   - Backend `backend/.env`:
+     ```env
+     PORT=5000
+     MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/subtrack
+     NODE_ENV=development
+     GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 
-3. **Launch the development server**:
+     # Optional SMTP settings for confirmation emails
+     SMTP_HOST=smtp.gmail.com
+     SMTP_PORT=587
+     SMTP_USER=your-email@gmail.com
+     SMTP_PASS=your-gmail-app-password
+     ```
+   - Frontend `frontend/.env`:
+     ```env
+     VITE_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+     ```
+
+3. **Launch development servers**:
    ```bash
    npm run dev
    ```
-
-4. **Open in browser**:
-   Open [http://localhost:5173/](http://localhost:5173/) to view the live application.
+   - **Frontend App**: [http://localhost:5173/](http://localhost:5173/)
+   - **Backend API**: [http://localhost:5000/](http://localhost:5000/)
+   - **Health Check**: [http://localhost:5000/api/health](http://localhost:5000/api/health)
 
 ---
 
-## 📦 Production Build & Testing
+## 📦 Production Build
 
 To compile the production bundle:
 
@@ -172,20 +152,13 @@ To compile the production bundle:
 npm run build
 ```
 
-This compiles all React components, generates minified bundles in `dist/`, and validates TypeScript/JSX syntax with zero errors.
-
-To preview the compiled production build locally:
-
-```bash
-npm run preview
-```
-
 ---
 
-## 🔒 Security & Data Privacy
+## 🔒 Security & Data Isolation
 
-- **Local Storage Persistence**: Subscription and user data are persisted directly to the user's browser `localStorage`, ensuring data privacy without sending sensitive financial data to unauthenticated external servers.
-- **Client-Side Validation**: Sanitized input handlers, regex validation for password security gates, and explicit type checking.
+- **Per-User Scoping**: Every database document and local storage entry is linked to an authenticated user ID.
+- **Password Strength Gate**: Client-side enforcement of 4 security criteria (8+ characters, number, symbol, uppercase).
+- **Environment Isolation**: Database connection strings, SMTP credentials, and OAuth secrets are kept in ignored `.env` configurations.
 
 ---
 
