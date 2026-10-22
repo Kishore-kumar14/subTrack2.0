@@ -1,189 +1,236 @@
+
 import nodemailer from 'nodemailer';
 
-/**
- * SubTrack Email Service
- * Handles user confirmation emails, alerts, and notifications.
- */
-
-// Cache transporter instance
+// SubTrack Email Service
 let transporter = null;
+let transporterPromise = null;
 
-/**
- * Initialize or get the email transporter.
- * Supports custom SMTP, Gmail, or Ethereal test account fallback.
- */
-async function getTransporter() {
-  if (transporter) return transporter;
+function getTransporter() {
+  if (transporter) return Promise.resolve(transporter);
+  if (transporterPromise) return transporterPromise;
 
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_SECURE } = process.env;
+  transporterPromise = (async () => {
+    const {
+      SMTP_HOST,
+      SMTP_PORT,
+      SMTP_USER,
+      SMTP_PASS,
+      SMTP_SECURE,
+      EMAIL_FROM,
+    } = process.env;
 
-  if (SMTP_HOST && SMTP_USER && SMTP_PASS) {
-    // Configured with custom SMTP
-    transporter = nodemailer.createTransport({
+    if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS || !EMAIL_FROM) {
+      throw new Error(
+        'Missing SMTP_HOST, SMTP_USER, SMTP_PASS, or EMAIL_FROM'
+      );
+    }
+
+    const port = Number(SMTP_PORT || 587);
+
+    const mailer = nodemailer.createTransport({
       host: SMTP_HOST,
-      port: Number(SMTP_PORT) || 587,
-      secure: SMTP_SECURE === 'true' || Number(SMTP_PORT) === 465,
+      port,
+      secure:
+        SMTP_SECURE !== undefined
+          ? SMTP_SECURE.toLowerCase() === 'true'
+          : port === 465,
       auth: {
         user: SMTP_USER.trim(),
-        pass: SMTP_PASS ? SMTP_PASS.replace(/\s+/g, '') : ''
-      }
+        pass: SMTP_PASS,
+      },
+      connectionTimeout: 15000,
+      greetingTimeout: 15000,
+      socketTimeout: 20000,
     });
-    console.log(`📧 SubTrack Email Service initialized with SMTP (${SMTP_HOST}:${SMTP_PORT || 587})`);
-    return transporter;
-  }
 
-  // Fallback: Create ethereal test account for local testing/development
+    await mailer.verify();
+    console.log('SubTrack SMTP connection verified');
+
+    return mailer;
+  })();
+
   try {
-    const testAccount = await nodemailer.createTestAccount();
-    transporter = nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
-      port: 587,
-      secure: false,
-      auth: {
-        user: testAccount.user,
-        pass: testAccount.pass
-      }
-    });
-    console.log(`📧 SubTrack Email Service: Using Ethereal test inbox (${testAccount.user})`);
+    transporter = await transporterPromise;
     return transporter;
-  } catch (err) {
-    console.warn('⚠️ Could not initialize Ethereal mailer, using console mail logger:', err.message);
-    transporter = {
-      sendMail: async (opts) => {
-        console.log(`\n================== [SIMULATED EMAIL DISPATCH] ==================`);
-        console.log(`To:      ${opts.to}`);
-        console.log(`Subject: ${opts.subject}`);
-        console.log(`----------------------------------------------------------------`);
-        console.log(`Text preview: ${opts.text?.slice(0, 200)}...`);
-        console.log(`================================================================\n`);
-        return { messageId: `sim-${Date.now()}` };
-      }
-    };
-    return transporter;
+  } catch (error) {
+    transporterPromise = null;
+    throw error;
   }
 }
 
-/**
- * Send account confirmation email upon registration or Google signup
- */
+function escapeHtml(value = '') {
+  return String(value).replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  })[char]);
+}
+
+// Send confirmation email after registration
 export async function sendConfirmationEmail(user) {
   try {
+    if (!user?.email) {
+      throw new Error('User email is missing');
+    }
+
     const mailer = await getTransporter();
-    const fromAddress = process.env.EMAIL_FROM || '"SubTrack App" <no-reply@subtrack.app>';
-    const userName = user.name || 'there';
-    const userEmail = user.email;
+    const appUrl = (
+      process.env.APP_URL || 'http://localhost:5173'
+    ).replace(/\/+$/, '');
 
-    const htmlContent = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to SubTrack</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0f172a; margin: 0; padding: 24px; color: #f8fafc; }
-    .card { max-width: 600px; margin: 0 auto; background: #1e293b; border-radius: 16px; border: 1px solid #334155; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
-    .header { background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%); padding: 32px 24px; text-align: center; }
-    .header h1 { margin: 0; font-size: 26px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; }
-    .header p { margin: 8px 0 0; color: #bfdbfe; font-size: 14px; }
-    .content { padding: 32px 28px; line-height: 1.6; color: #cbd5e1; font-size: 15px; }
-    .welcome-badge { display: inline-block; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 12px; border-radius: 9999px; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
-    .feature-box { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 20px; margin: 24px 0; }
-    .feature-item { display: flex; align-items: flex-start; margin-bottom: 12px; }
-    .feature-item:last-child { margin-bottom: 0; }
-    .feature-icon { margin-right: 12px; font-size: 18px; }
-    .btn { display: inline-block; background: #2563eb; color: #ffffff !important; text-decoration: none; padding: 14px 28px; border-radius: 10px; font-weight: 700; font-size: 15px; margin-top: 16px; text-align: center; }
-    .footer { padding: 20px 28px; background: #0b1120; border-top: 1px solid #1e293b; text-align: center; font-size: 12px; color: #64748b; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <div class="header">
-      <h1>SubTrack</h1>
-      <p>Intelligent Subscription & Expense Management</p>
-    </div>
-    <div class="content">
-      <div class="welcome-badge">✓ Account Successfully Confirmed</div>
-      <h2 style="margin: 0 0 12px; color: #ffffff; font-size: 20px;">Welcome, ${userName}!</h2>
-      <p>Thank you for creating an account with SubTrack. Your registration is confirmed and your personal workspace is ready.</p>
-      
-      <div class="feature-box">
-        <div style="font-weight: 700; color: #f8fafc; margin-bottom: 12px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em;">What you can do next:</div>
-        
-        <div class="feature-item">
-          <div class="feature-icon">📊</div>
-          <div><strong>Track All Recurring Plans:</strong> Add your subscriptions, recharge plans, and streaming services to monitor monthly cash outflows.</div>
-        </div>
-        
-        <div class="feature-item">
-          <div class="feature-icon">📅</div>
-          <div><strong>Sync with Google Calendar:</strong> Connect renewal dates directly to your Google Calendar to get mobile push reminders before you are billed.</div>
-        </div>
-        
-        <div class="feature-item">
-          <div class="feature-icon">⏳</div>
-          <div><strong>Trial Expiry Protection:</strong> Never get charged accidentally again with customizable advance alerts for free trials.</div>
-        </div>
-      </div>
+    const name = escapeHtml(user.name || 'there');
+    const email = escapeHtml(user.email);
+    const accountId = escapeHtml(user.id || 'N/A');
+    const currency = escapeHtml(user.currency || 'INR');
+    const date = new Date().toLocaleDateString('en-IN');
 
-      <p style="margin-bottom: 8px;"><strong>Account Details:</strong></p>
-      <ul style="margin-top: 4px; padding-left: 20px; color: #94a3b8; font-size: 14px;">
-        <li>Email: <span style="color: #f1f5f9;">${userEmail}</span></li>
-        <li>Account ID: <span style="color: #f1f5f9;">${user.id}</span></li>
-        <li>Preferred Currency: <span style="color: #f1f5f9;">${user.currency || 'INR'}</span></li>
-        <li>Registration Date: <span style="color: #f1f5f9;">${new Date().toLocaleDateString()}</span></li>
-      </ul>
-
-      <center>
-        <a href="http://localhost:5173" class="btn">Open Your Dashboard →</a>
-      </center>
-    </div>
-    <div class="footer">
-      SubTrack • Private & Secure Recurring Expense Tracking<br />
-      If you did not sign up for this account, please ignore this email.
-    </div>
-  </div>
-</body>
-</html>
+    const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+      </head>
+      <body style="margin:0;padding:24px;background:#0f172a;color:#f8fafc;font-family:Arial,sans-serif">
+        <div style="max-width:600px;margin:auto;background:#1e293b;padding:30px;border-radius:16px">
+          <h1 style="color:#60a5fa">Welcome to SubTrack!</h1>
+          <h2>Hello, ${name}!</h2>
+          <p>Thank you for creating your SubTrack account.</p>
+          <p>Your account is ready. Start tracking subscriptions,
+          managing renewal dates, and monitoring recurring expenses.</p>
+          <hr style="border-color:#334155">
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Account ID:</strong> ${accountId}</p>
+          <p><strong>Currency:</strong> ${currency}</p>
+          <p><strong>Registration date:</strong> ${date}</p>
+          <p style="margin-top:28px">
+            <a href="${escapeHtml(appUrl)}"
+              style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:14px 24px;border-radius:8px">
+              Open Your Dashboard
+            </a>
+          </p>
+          <p style="font-size:12px;color:#94a3b8">
+            If you did not create this account, please ignore this email.
+          </p>
+        </div>
+      </body>
+      </html>
     `;
 
-    const textContent = `
-Welcome to SubTrack, ${userName}!
+    const text = `
+Welcome to SubTrack, ${user.name || 'there'}!
 
 Your account registration is confirmed.
-Email: ${userEmail}
+Email: ${user.email}
+Account ID: ${user.id || 'N/A'}
 Currency: ${user.currency || 'INR'}
-Registration Date: ${new Date().toLocaleDateString()}
+Registration date: ${date}
 
-You can now track all your subscriptions, sync renewal dates to your Google Calendar for mobile push notifications, and monitor your monthly expenses.
-
-Log in here: http://localhost:5173
-
-SubTrack App
+Open your dashboard: ${appUrl}
     `;
 
     const info = await mailer.sendMail({
-      from: fromAddress,
-      to: userEmail,
-      subject: `Welcome to SubTrack - Your Account is Confirmed! 🚀`,
-      text: textContent,
-      html: htmlContent
+      from: {
+        name: 'SubTrack',
+        address: process.env.EMAIL_FROM,
+      },
+      to: user.email,
+      subject: 'Welcome to SubTrack - Your Account Is Confirmed!',
+      text,
+      html,
     });
 
-    console.log(`✉️ Confirmation email successfully sent to ${userEmail} (ID: ${info.messageId})`);
-    
-    // If ethereal, log preview URL
-    if (nodemailer.getTestMessageUrl) {
-      const previewUrl = nodemailer.getTestMessageUrl(info);
-      if (previewUrl) {
-        console.log(`🔗 Ethereal Email Preview URL: ${previewUrl}`);
-      }
+    console.log('SubTrack email result:', {
+      messageId: info.messageId,
+      accepted: info.accepted,
+      rejected: info.rejected,
+    });
+
+    if (
+      info.rejected?.length ||
+      !info.accepted?.some(
+        (address) =>
+          address.toLowerCase() === user.email.toLowerCase()
+      )
+    ) {
+      throw new Error('SMTP server did not accept the recipient');
     }
 
-    return { success: true, messageId: info.messageId };
+    return {
+      success: true,
+      messageId: info.messageId,
+    };
   } catch (error) {
-    console.error(`❌ Failed to send confirmation email to ${user?.email}:`, error.message);
-    // Don't crash registration if email fails
+    console.error('SubTrack email failed:', {
+      recipient: user?.email,
+      message: error.message,
+      code: error.code,
+      command: error.command,
+      responseCode: error.responseCode,
+    });
+
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+}
+
+// Diagnostic function for testing SMTP configuration
+export async function testEmailConnection() {
+  try {
+    const mailer = await getTransporter();
+    await mailer.verify();
+
+    console.log('SMTP test successful');
+    return { success: true };
+  } catch (error) {
+    console.error('SMTP test failed:', {
+      message: error.message,
+      code: error.code,
+      command: error.command,
+    });
+
     return { success: false, error: error.message };
+  }
+}
+
+// Send a real test email to an address you control
+export async function sendTestEmail(recipient) {
+  try {
+    if (!recipient || !recipient.includes('@')) {
+      throw new Error('A valid recipient email is required');
+    }
+
+    const mailer = await getTransporter();
+
+    const info = await mailer.sendMail({
+      from: {
+        name: 'SubTrack',
+        address: process.env.EMAIL_FROM,
+      },
+      to: recipient,
+      subject: 'SubTrack SMTP Test',
+      text: 'Your SubTrack SMTP configuration is working.',
+      html: '<h2>SubTrack SMTP Test</h2><p>Your SMTP configuration is working.</p>',
+    });
+
+    console.log('Test email submitted:', info.messageId);
+
+    return {
+      success: true,
+      messageId: info.messageId,
+      accepted: info.accepted,
+      rejected: info.rejected,
+    };
+  } catch (error) {
+    console.error('Test email failed:', error.message);
+
+    return {
+      success: false,
+      error: error.message,
+    };
   }
 }
