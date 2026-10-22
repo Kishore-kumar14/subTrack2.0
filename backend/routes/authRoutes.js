@@ -361,8 +361,7 @@ router.post('/test-email', async (req, res) => {
     if (!result.success) {
       return res.status(500).json({
         success: false,
-        error: result.error,
-        hint: 'If you are deployed on Render, outbound SMTP ports (587, 465) are blocked by default. Consider using RESEND_API_KEY (HTTP API over HTTPS port 443).'
+        error: result.error
       });
     }
 

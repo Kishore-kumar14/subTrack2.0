@@ -95,7 +95,7 @@ async function getTransporter() {
  * Diagnostic utility to check email service status in production
  */
 export async function diagnoseEmailService() {
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_SECURE, RESEND_API_KEY, EMAIL_FROM, FRONTEND_URL } = process.env;
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_SECURE, EMAIL_FROM, FRONTEND_URL } = process.env;
 
   const diagnostics = {
     timestamp: new Date().toISOString(),
@@ -105,19 +105,7 @@ export async function diagnoseEmailService() {
     details: {}
   };
 
-  // 1. Check Resend (HTTP API over port 443 - Immune to cloud SMTP port blocks like Render)
-  if (RESEND_API_KEY) {
-    diagnostics.provider = 'Resend (HTTP API)';
-    diagnostics.details = {
-      apiKeyConfigured: true,
-      fromAddress: EMAIL_FROM || 'SubTrack <onboarding@resend.dev>',
-      note: 'Uses HTTPS port 443, immune to cloud host SMTP port blocks.'
-    };
-    diagnostics.ready = true;
-    return diagnostics;
-  }
-
-  // 2. Check SMTP (Gmail / Custom)
+  // Check SMTP (Gmail / Custom)
   if (SMTP_HOST && SMTP_USER && SMTP_PASS) {
     const isGmail = SMTP_HOST === 'smtp.gmail.com' || process.env.SMTP_SERVICE?.toLowerCase() === 'gmail';
     const port = Number(SMTP_PORT) || (isGmail ? 465 : 587);
@@ -146,7 +134,7 @@ export async function diagnoseEmailService() {
       diagnostics.ready = false;
       diagnostics.details.error = err.message;
       if (err.code === 'ETIMEDOUT' || err.message?.includes('timeout') || err.code === 'ECONNREFUSED') {
-        diagnostics.details.hint = 'Connection timed out. On cloud hosts like Render free tier, outbound SMTP ports (25, 465, 587) are blocked by default. Fix: Set RESEND_API_KEY in your cloud environment variables or request Render to unblock SMTP.';
+        diagnostics.details.hint = 'Connection timed out. Check network connection or verify SMTP host/port.';
       } else if (err.code === 'EAUTH' || err.responseCode === 535) {
         diagnostics.details.hint = 'Authentication failed. If using Gmail, you must use a 16-character App Password (not your normal Google account password) and ensure 2-Step Verification is active on your Google account.';
       }
@@ -159,7 +147,7 @@ export async function diagnoseEmailService() {
   diagnostics.ready = false;
   diagnostics.details = {
     warning: 'No email environment variables found on server.',
-    hint: 'Add SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS (or RESEND_API_KEY) in your cloud deployment environment settings (e.g. Render Dashboard -> Environment).'
+    hint: 'Add SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS in your environment settings.'
   };
   return diagnostics;
 }
@@ -267,33 +255,7 @@ Log in here: ${frontendUrl}
 SubTrack App
     `;
 
-    // 1. If RESEND_API_KEY is configured (HTTP API over HTTPS port 443 - Bypasses Render/cloud SMTP blocks)
-    if (process.env.RESEND_API_KEY) {
-      const resendFrom = process.env.EMAIL_FROM || 'SubTrack <onboarding@resend.dev>';
-      const res = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.RESEND_API_KEY.trim()}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          from: resendFrom,
-          to: [userEmail],
-          subject: `Welcome to SubTrack - Your Account is Confirmed! 🚀`,
-          html: htmlContent,
-          text: textContent
-        })
-      });
-
-      const resData = await res.json();
-      if (!res.ok) {
-        throw new Error(resData.message || resData.error?.message || `Resend dispatch failed with status ${res.status}`);
-      }
-      console.log(`✉️ Confirmation email sent via Resend API to ${userEmail} (ID: ${resData.id})`);
-      return { success: true, messageId: resData.id };
-    }
-
-    // 2. Standard SMTP Dispatch (Nodemailer)
+    // SMTP Dispatch (Nodemailer via Gmail / Custom SMTP)
     const mailer = await getTransporter();
     const info = await mailer.sendMail({
       from: fromAddress,
@@ -316,10 +278,6 @@ SubTrack App
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error(`❌ Failed to send confirmation email to ${user?.email}:`, error.message);
-    const isPortBlocked = error.code === 'ETIMEDOUT' || error.message?.includes('timeout') || error.code === 'ECONNREFUSED';
-    const friendlyError = isPortBlocked
-      ? "Render blocks outbound SMTP ports (465/587). Please add RESEND_API_KEY in Render Dashboard -> Environment to enable live email delivery over HTTPS."
-      : error.message;
-    return { success: false, error: friendlyError, isPortBlocked };
+    return { success: false, error: error.message };
   }
 }

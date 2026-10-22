@@ -45,11 +45,9 @@ app.use((req, res, next) => {
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   const dbInfo = getDBDetails();
-  const emailProvider = process.env.RESEND_API_KEY
-    ? 'Resend API'
-    : (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS)
-      ? `${process.env.SMTP_HOST} (SMTP)`
-      : 'Unconfigured / Fallback';
+  const emailProvider = (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS)
+    ? `${process.env.SMTP_HOST} (SMTP)`
+    : 'Unconfigured / Fallback';
 
   res.json({
     status: 'ok',
@@ -58,7 +56,7 @@ app.get('/api/health', (req, res) => {
     mongodb: dbInfo,
     email: {
       provider: emailProvider,
-      configured: Boolean(process.env.RESEND_API_KEY || (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS)),
+      configured: Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS),
       diagnosticEndpoint: '/api/auth/email-diagnostic'
     }
   });
