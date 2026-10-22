@@ -4,6 +4,7 @@ import { useSubscriptions } from '../context/SubscriptionContext';
 import { api } from '../services/api';
 import {
   User,
+  MessageSquare,
   DollarSign,
   Bell,
   Download,
@@ -463,6 +464,68 @@ export default function ProfilePage() {
           </button>
         </div>
       </div>
+      
+      {/* Feedback Collection Section */}
+      <div className="glass-panel" style={{ padding: '2rem' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.6rem',
+            marginBottom: '0.5rem'
+          }}
+        >
+          <MessageSquare
+            size={22}
+            style={{ color: 'var(--primary-light)' }}
+          />
+          <h3
+            style={{
+              fontSize: '1.2rem',
+              fontWeight: 800,
+              margin: 0
+            }}
+          >
+            Share Your Feedback
+          </h3>
+        </div>
+
+        <p
+          style={{
+            fontSize: '0.85rem',
+            color: 'var(--text-secondary)',
+            marginBottom: '1.25rem',
+            lineHeight: 1.6
+          }}
+        >
+          Your feedback helps us improve SubTrack.
+          Share your suggestions, report issues, or tell us
+          about your experience using the application.
+        </p>
+
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() =>
+            window.open(
+              'https://forms.gle/1SyJpqUp4zvSLvKR8',
+              '_blank',
+              'noopener,noreferrer'
+            )
+          }
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem'
+          }}
+        >
+          <MessageSquare size={16} />
+          <span>Give Feedback</span>
+          <ExternalLink size={14} />
+        </button>
+      </div>
+
     </div>
   );
 }
