@@ -1,4 +1,5 @@
 import express from 'express';
+import User from '../models/User.js';
 import Subscription from '../models/Subscription.js';
 import { isDBConnected } from '../config/db.js';
 import calendarSyncService from '../services/calendarSyncService.js';
@@ -189,8 +190,21 @@ router.get('/:userId/feed.ics', async (req, res) => {
 
     let subscriptions = [];
     if (isDBConnected()) {
+      const rawId = String(userId || '').trim();
+      const stripped = rawId.replace(/^usr-g-/, '').replace(/^g-/, '');
+      const user = await User.findOne({
+        $or: [
+          { id: rawId },
+          { googleId: rawId },
+          { googleId: stripped },
+          { id: `usr-g-${stripped}` },
+          { email: rawId.toLowerCase() }
+        ]
+      });
+      const userIds = Array.from(new Set([rawId, stripped, user?.id, user?.googleId].filter(Boolean)));
+
       subscriptions = await Subscription.find({
-        userId,
+        userId: { $in: userIds },
         status: { $in: ['active', 'trial'] }
       });
     }

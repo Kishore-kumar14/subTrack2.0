@@ -2,11 +2,13 @@ import express from 'express';
 import { OAuth2Client } from 'google-auth-library';
 import User from '../models/User.js';
 import { isDBConnected } from '../config/db.js';
-import { sendConfirmationEmail } from '../services/emailService.js';
+import { sendConfirmationEmail, diagnoseEmailService } from '../services/emailService.js';
 import { generateToken } from '../middleware/auth.js';
 
 const router = express.Router();
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+function getGoogleClient() {
+  return new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+}
 
 const checkDB = (req, res, next) => {
   if (!isDBConnected()) {
@@ -185,8 +187,7 @@ router.post('/google', checkDB, async (req, res) => {
       let payload = null;
 
       if (clientId && !clientId.includes('your-google-client-id')) {
-        try {
-          const ticket = await googleClient.verifyIdToken({
+          const ticket = await getGoogleClient().verifyIdToken({
             idToken: token,
             audience: clientId
           });
@@ -294,9 +295,23 @@ router.post('/resend-confirmation', checkDB, async (req, res) => {
       return res.status(400).json({ error: 'Email is required' });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    let user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      user = new User({
+        id: `usr-${Date.now()}`,
+        name: email.split('@')[0],
+        email: email.toLowerCase(),
+        currency: 'INR',
+        monthlyBudget: 8000,
+        joinedDate: new Date().toISOString().split('T')[0],
+        preferences: {
+          browserAlerts: true,
+          emailAlerts: true,
+          alertDaysBefore: 3,
+          weeklyReport: true
+        }
+      });
+      await user.save();
     }
 
     const result = await sendConfirmationEmail(user);
@@ -308,6 +323,56 @@ router.post('/resend-confirmation', checkDB, async (req, res) => {
   } catch (err) {
     console.error('Error in resend-confirmation:', err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * GET /api/auth/email-diagnostic
+ * Check email configuration and connectivity in production
+ */
+router.get('/email-diagnostic', async (req, res) => {
+  try {
+    const diagnostic = await diagnoseEmailService();
+    res.json(diagnostic);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * POST /api/auth/test-email
+ * Dispatch a test confirmation email to verify deliverability
+ */
+router.post('/test-email', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Target email is required' });
+    }
+
+    const testUser = {
+      id: 'diagnostic-test',
+      name: 'Diagnostic Tester',
+      email: email.toLowerCase(),
+      currency: 'INR'
+    };
+
+    const result = await sendConfirmationEmail(testUser);
+    if (!result.success) {
+      return res.status(500).json({
+        success: false,
+        error: result.error,
+        hint: 'If you are deployed on Render, outbound SMTP ports (587, 465) are blocked by default. Consider using RESEND_API_KEY (HTTP API over HTTPS port 443).'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: `Test confirmation email dispatched successfully to ${email}!`,
+      messageId: result.messageId
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 

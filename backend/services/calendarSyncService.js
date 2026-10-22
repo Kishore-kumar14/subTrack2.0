@@ -2,10 +2,12 @@ import User from '../models/User.js';
 import Subscription from '../models/Subscription.js';
 import { OAuth2Client } from 'google-auth-library';
 
-const googleClient = new OAuth2Client(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET
-);
+function getGoogleOAuthClient() {
+  return new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET
+  );
+}
 
 /**
  * Format a Date or date string to YYYY-MM-DD
@@ -110,8 +112,9 @@ async function getUserCredentials(userId, explicitToken = null) {
   const now = Date.now();
   if (expiryDate && now >= expiryDate - 60000 && refreshToken) {
     try {
-      googleClient.setCredentials({ refresh_token: refreshToken });
-      const { credentials } = await googleClient.refreshAccessToken();
+      const client = getGoogleOAuthClient();
+      client.setCredentials({ refresh_token: refreshToken });
+      const { credentials } = await client.refreshAccessToken();
       user.googleCalendar.accessToken = credentials.access_token;
       if (credentials.expiry_date) {
         user.googleCalendar.expiryDate = credentials.expiry_date;
