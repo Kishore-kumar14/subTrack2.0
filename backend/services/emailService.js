@@ -5,9 +5,6 @@ import nodemailer from 'nodemailer';
  * Handles user confirmation emails, alerts, and notifications.
  */
 
-import dotenv from 'dotenv';
-dotenv.config();
-
 // Cache transporter instance
 let transporter = null;
 
@@ -20,43 +17,19 @@ async function getTransporter() {
 
   const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_SECURE } = process.env;
 
-  if (SMTP_USER && SMTP_PASS) {
-    const isGmail = SMTP_HOST === 'smtp.gmail.com' || (!SMTP_HOST && SMTP_USER.endsWith('@gmail.com')) || process.env.SMTP_SERVICE?.toLowerCase() === 'gmail';
-
-    if (isGmail) {
-      transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: SMTP_USER.trim(),
-          pass: SMTP_PASS ? SMTP_PASS.replace(/\s+/g, '') : ''
-        },
-        connectionTimeout: 5000,
-        greetingTimeout: 5000,
-        socketTimeout: 8000
-      });
-      console.log(`📧 SubTrack Email Service initialized with Gmail (${SMTP_USER})`);
-      return transporter;
-    }
-
-    if (SMTP_HOST) {
-      const port = Number(SMTP_PORT) || 465;
-      const secure = SMTP_SECURE === 'true' || port === 465;
-
-      transporter = nodemailer.createTransport({
-        host: SMTP_HOST,
-        port,
-        secure,
-        auth: {
-          user: SMTP_USER.trim(),
-          pass: SMTP_PASS ? SMTP_PASS.replace(/\s+/g, '') : ''
-        },
-        connectionTimeout: 5000,
-        greetingTimeout: 5000,
-        socketTimeout: 8000
-      });
-      console.log(`📧 SubTrack Email Service initialized with SMTP (${SMTP_HOST}:${port}, secure=${secure})`);
-      return transporter;
-    }
+  if (SMTP_HOST && SMTP_USER && SMTP_PASS) {
+    // Configured with custom SMTP
+    transporter = nodemailer.createTransport({
+      host: SMTP_HOST,
+      port: Number(SMTP_PORT) || 587,
+      secure: SMTP_SECURE === 'true' || Number(SMTP_PORT) === 465,
+      auth: {
+        user: SMTP_USER.trim(),
+        pass: SMTP_PASS ? SMTP_PASS.replace(/\s+/g, '') : ''
+      }
+    });
+    console.log(`📧 SubTrack Email Service initialized with SMTP (${SMTP_HOST}:${SMTP_PORT || 587})`);
+    return transporter;
   }
 
   // Fallback: Create ethereal test account for local testing/development
@@ -69,8 +42,7 @@ async function getTransporter() {
       auth: {
         user: testAccount.user,
         pass: testAccount.pass
-      },
-      connectionTimeout: 8000
+      }
     });
     console.log(`📧 SubTrack Email Service: Using Ethereal test inbox (${testAccount.user})`);
     return transporter;
@@ -92,79 +64,14 @@ async function getTransporter() {
 }
 
 /**
- * Diagnostic utility to check email service status in production
- */
-export async function diagnoseEmailService() {
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_SECURE, EMAIL_FROM, FRONTEND_URL } = process.env;
-
-  const diagnostics = {
-    timestamp: new Date().toISOString(),
-    frontendUrl: FRONTEND_URL || 'http://localhost:5173 (Default localhost, set FRONTEND_URL in production)',
-    provider: null,
-    ready: false,
-    details: {}
-  };
-
-  // Check SMTP (Gmail / Custom)
-  if (SMTP_HOST && SMTP_USER && SMTP_PASS) {
-    const isGmail = SMTP_HOST === 'smtp.gmail.com' || process.env.SMTP_SERVICE?.toLowerCase() === 'gmail';
-    const port = Number(SMTP_PORT) || (isGmail ? 465 : 587);
-    const secure = SMTP_SECURE === 'true' || port === 465;
-
-    diagnostics.provider = isGmail ? 'Gmail SMTP' : `Custom SMTP (${SMTP_HOST})`;
-    diagnostics.details = {
-      host: SMTP_HOST,
-      port,
-      secure,
-      user: `${SMTP_USER.slice(0, 3)}***@${SMTP_USER.split('@')[1] || ''}`,
-      passConfigured: true,
-      fromAddress: EMAIL_FROM || `SubTrack App <${SMTP_USER}>`
-    };
-
-    try {
-      const mailer = await getTransporter();
-      if (mailer.verify) {
-        await mailer.verify();
-        diagnostics.ready = true;
-        diagnostics.details.status = 'SMTP connection and credentials verified successfully!';
-      } else {
-        diagnostics.ready = true;
-      }
-    } catch (err) {
-      diagnostics.ready = false;
-      diagnostics.details.error = err.message;
-      if (err.code === 'ETIMEDOUT' || err.message?.includes('timeout') || err.code === 'ECONNREFUSED') {
-        diagnostics.details.hint = 'Connection timed out. Check network connection or verify SMTP host/port.';
-      } else if (err.code === 'EAUTH' || err.responseCode === 535) {
-        diagnostics.details.hint = 'Authentication failed. If using Gmail, you must use a 16-character App Password (not your normal Google account password) and ensure 2-Step Verification is active on your Google account.';
-      }
-    }
-    return diagnostics;
-  }
-
-  // 3. Fallback: Unconfigured
-  diagnostics.provider = 'Unconfigured (Fallback)';
-  diagnostics.ready = false;
-  diagnostics.details = {
-    warning: 'No email environment variables found on server.',
-    hint: 'Add SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS in your environment settings.'
-  };
-  return diagnostics;
-}
-
-/**
  * Send account confirmation email upon registration or Google signup
  */
 export async function sendConfirmationEmail(user) {
   try {
-    let fromAddress = process.env.EMAIL_FROM;
-    if (!fromAddress || !fromAddress.includes('@')) {
-      const fallbackSender = process.env.SMTP_USER || 'no-reply@subtrack.app';
-      fromAddress = `"SubTrack App" <${fallbackSender}>`;
-    }
+    const mailer = await getTransporter();
+    const fromAddress = process.env.EMAIL_FROM || '"SubTrack App" <no-reply@subtrack.app>';
     const userName = user.name || 'there';
     const userEmail = user.email;
-    const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
 
     const htmlContent = `
 <!DOCTYPE html>
@@ -228,7 +135,7 @@ export async function sendConfirmationEmail(user) {
       </ul>
 
       <center>
-        <a href="${frontendUrl}" class="btn">Open Your Dashboard →</a>
+        <a href="http://localhost:5173" class="btn">Open Your Dashboard →</a>
       </center>
     </div>
     <div class="footer">
@@ -250,13 +157,11 @@ Registration Date: ${new Date().toLocaleDateString()}
 
 You can now track all your subscriptions, sync renewal dates to your Google Calendar for mobile push notifications, and monitor your monthly expenses.
 
-Log in here: ${frontendUrl}
+Log in here: http://localhost:5173
 
 SubTrack App
     `;
 
-    // SMTP Dispatch (Nodemailer via Gmail / Custom SMTP)
-    const mailer = await getTransporter();
     const info = await mailer.sendMail({
       from: fromAddress,
       to: userEmail,
@@ -278,6 +183,7 @@ SubTrack App
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error(`❌ Failed to send confirmation email to ${user?.email}:`, error.message);
+    // Don't crash registration if email fails
     return { success: false, error: error.message };
   }
 }

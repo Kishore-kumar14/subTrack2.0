@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
 import {
   User,
@@ -28,9 +27,6 @@ export default function SignUpPage({ onNavigate }) {
   const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [googleEmailInput, setGoogleEmailInput] = useState('');
   const [googleNameInput, setGoogleNameInput] = useState('');
-
-  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-  const isRealGoogleIdConfigured = clientId && !clientId.includes('your-google-client-id');
 
   // If already authenticated, redirect to dashboard automatically
   useEffect(() => {

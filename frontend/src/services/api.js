@@ -6,9 +6,7 @@
 // Cloud or local API base URL
 const API_BASE = import.meta.env.VITE_API_BASE_URL
   ? `${import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '')}/api`
-  : (typeof window !== 'undefined' && window.location.hostname !== 'localhost')
-    ? 'https://backend-x1jq.onrender.com/api'
-    : '/api';
+  : '/api';
 
 function getAuthHeaders() {
   const token = localStorage.getItem('subtrack_token');
@@ -271,12 +269,7 @@ export const api = {
 
   getCalendarFeedUrl(userId) {
     if (!userId) return '';
-    const baseUrl = import.meta.env.VITE_API_BASE_URL
-      ? import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '')
-      : (typeof window !== 'undefined' && window.location.hostname !== 'localhost')
-        ? 'https://backend-x1jq.onrender.com'
-        : window.location.origin;
-    return `${baseUrl}/api/calendar/${userId}/feed.ics`;
+    return `${window.location.origin}/api/calendar/${userId}/feed.ics`;
   },
 
   /**

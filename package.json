@@ -13,7 +13,7 @@
     "preview": "npm run preview --prefix frontend",
     "install:all": "npm install --prefix frontend && npm install --prefix backend"
   },
-  "dependencies": {
+  "devDependencies": {
     "concurrently": "^9.2.4"
   }
 }
